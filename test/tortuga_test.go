@@ -1,11 +1,13 @@
 package tortuga
 
 import (
-	"https://github.com/bus710/tortuga" tortuga 
+	"testing"
+
+	tortuga "github.com/bus710/tortuga"
 )
 
-func testInit(){
-	body := tortuga.body
+func TestInit(t *testing.T) {
+	body := tortuga.Body{}
 
-	body.init()
+	body.Init()
 }

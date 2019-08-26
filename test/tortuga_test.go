@@ -7,7 +7,7 @@ import (
 )
 
 func TestInit(t *testing.T) {
-	body := tortuga.Body{}
+	tConn := tortuga.Connection{}
 
-	body.Init()
+	tConn.Init()
 }

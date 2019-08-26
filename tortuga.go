@@ -8,8 +8,6 @@ import (
 	"time"
 
 	"github.com/tarm/serial"
-
-	"github.com/bus710/tortuga/internal/helper"
 )
 
 // Connection ...
@@ -115,7 +113,7 @@ loopRun:
 			// 	}
 			// 	if data {
 			// 	}
-			helper.Dummy()
+			Dummy()
 		// This case receives a stop signal
 		case <-c.chanStop:
 			break loopRun

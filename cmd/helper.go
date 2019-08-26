@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
-func dummy() {
+// Dummy ...
+func Dummy() {
 	fmt.Println("test")
 }

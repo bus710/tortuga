@@ -105,14 +105,14 @@ loopRun:
 		case <-ticker:
 			if count == 0 {
 			}
-		// This case receives the command struct from the app
-		case command := <-c.chanCommand:
-			data, err := c.serialize(command)
-			if err != nil {
-				return err
-			}
-			if data {
-			}
+			// This case receives the command struct from the app
+			// case command := <-c.chanCommand:
+			// 	data, err := c.serialize(command)
+			// 	if err != nil {
+			// 		return err
+			// 	}
+			// 	if data {
+			// 	}
 			dummy()
 		// This case receives a stop signal
 		case <-c.chanStop:

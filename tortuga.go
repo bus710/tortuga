@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/tarm/serial"
+	"tortuga/helper"
 )
 
 // Connection ...

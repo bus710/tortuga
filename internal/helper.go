@@ -1,3 +1,7 @@
 package helper
 
-func dummy() {}
+import "fmt"
+
+func dummy() {
+	fmt.Println("test")
+}

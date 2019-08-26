@@ -8,6 +8,7 @@ import (
 
 func TestInit(t *testing.T) {
 	tConn := tortuga.Connection{}
-
 	tConn.Init()
+	Dummy()
+
 }

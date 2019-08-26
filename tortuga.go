@@ -113,7 +113,7 @@ loopRun:
 			// 	}
 			// 	if data {
 			// 	}
-			Dummy()
+			helper.Dummy()
 		// This case receives a stop signal
 		case <-c.chanStop:
 			break loopRun

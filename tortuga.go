@@ -7,8 +7,9 @@ import (
 	"sync"
 	"time"
 
+	internal "github.com/bus710/tortuga/internal"
+	model "github.com/bus710/tortuga/model"
 	"github.com/tarm/serial"
-	"github.com/bus710/tortuga/internal"
 )
 
 // Connection ...
@@ -16,7 +17,7 @@ type Connection struct {
 	wait        *sync.WaitGroup
 	devName     string
 	chanStop    chan bool
-	chanCommand chan Command
+	chanCommand chan model.Command
 
 	serialport   *serial.Port
 	serialconfig *serial.Config
@@ -27,23 +28,13 @@ type Connection struct {
 	residue []byte   // Used if there is a leftover bytes after parsing
 }
 
-// Command can be used to generate a command for a Kobuki
-type Command struct {
-	header  [2]byte
-	length  byte
-	id      byte
-	size    byte
-	payload [15]byte
-	crc     byte
-}
-
 // Init this checks available ports and opens one if exists
 func (c *Connection) Init(
 	wait *sync.WaitGroup, devName string) (err error) {
 
 	c.wait = wait
 	c.chanStop = make(chan bool, 1)
-	c.chanCommand = make(chan Command, 1)
+	c.chanCommand = make(chan model.Command, 1)
 
 	// 1. Check if the given name has the pattern expected (/dev/ttyUSB0)
 	if !strings.Contains(devName, "dev") {
@@ -106,15 +97,14 @@ loopRun:
 		case <-ticker:
 			if count == 0 {
 			}
-			// This case receives the command struct from the app
-			// case command := <-c.chanCommand:
-			// 	data, err := c.serialize(command)
-			// 	if err != nil {
-			// 		return err
-			// 	}
-			// 	if data {
-			// 	}
-			internal.Dummy()
+		// This case receives the command struct from the app
+		case command := <-c.chanCommand:
+			data, err := internal.Serialize(command)
+			if err != nil {
+				return err
+			}
+			if data[0] == 1 {
+			}
 		// This case receives a stop signal
 		case <-c.chanStop:
 			break loopRun

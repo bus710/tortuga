@@ -7,3 +7,5 @@ require (
 	golang.org/x/sys v0.0.0-20190825160603-fb81701db80f // indirect
 	github.com/bus710/tortuga/internal/helper v0.0.0
 )
+
+replace github.com/bus710/tortuga/internal/helper v0.0.0 => ./internal/helper

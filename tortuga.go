@@ -115,7 +115,7 @@ loopRun:
 
 			c.numRead, c.buf = helper.MergeResidue(c.residue, c.numRead, c.buf)
 			c.pLoc = helper.SearchHeader(c.numRead, c.buf)
-			helper.DividePacket()
+			c.residue = helper.DividePacket(c.pLoc, c.buf)
 
 		case command := <-c.chanCommand:
 			// Upstream - from robot to app

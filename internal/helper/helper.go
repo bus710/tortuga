@@ -53,7 +53,46 @@ func SearchHeader(numRead uint16, buf []byte) (pLoc []uint16) {
 	}
 
 	pLoc = append(pLoc, uint16(numRead+1)) // To make the tail to be scan in the next step
-	pLoc = append(pLoc, 0)
+	pLoc = append(pLoc, 0)                 // To indicate this is the last cell
 
 	return pLoc
+}
+
+// DividePacket ...
+func DividePacket(pLoc []uint16, buf []byte) (residue []byte) {
+
+	residue = make([]byte, 0)
+
+	for i, start := range pLoc {
+		if i+1 == len(pLoc) {
+			break
+		}
+
+		end := pLoc[i+1]
+		if end != 0 {
+			if CheckCRC(start, end, buf) {
+				// log.Printf("%d, %d, %d - %x \n", i, start, end, t.buf[start:end])
+			} else {
+				// log.Println("CRC error")
+				residue = buf[start:end]
+			}
+		}
+	}
+
+	return residue
+}
+
+// CheckCRC ...
+func CheckCRC(start, end uint16, buf []byte) bool {
+
+	crc := buf[start+2]
+	for i := start + 3; i < end-1; i++ {
+		crc = crc ^ buf[i]
+	}
+
+	if buf[end-1] == crc {
+		return true
+	}
+
+	return false
 }

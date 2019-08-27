@@ -1,15 +1,8 @@
-package internal
+package helper
 
 import (
-	"fmt"
-
-	"github.com/bus710/tortuga/model"
+	"github.com/bus710/tortuga/internal/model"
 )
-
-// Dummy ...
-func Dummy() {
-	fmt.Println("test")
-}
 
 // Serialize ...
 func Serialize(command model.Command) (data []byte, err error) {

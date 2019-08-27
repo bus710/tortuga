@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	internal "github.com/bus710/tortuga/internal"
-	model "github.com/bus710/tortuga/model"
+	helper "github.com/bus710/tortuga/internal/helper"
+	model "github.com/bus710/tortuga/internal/model"
 	"github.com/tarm/serial"
 )
 
@@ -26,11 +26,13 @@ type Connection struct {
 	buf     []byte
 	pLoc    []uint16 // Pleamble Location
 	residue []byte   // Used if there is a leftover bytes after parsing
+
+	handler func()
 }
 
 // Init this checks available ports and opens one if exists
 func (c *Connection) Init(
-	wait *sync.WaitGroup, devName string) (err error) {
+	wait *sync.WaitGroup, devName string, handler func()) (err error) {
 
 	c.wait = wait
 	c.chanStop = make(chan bool, 1)
@@ -76,32 +78,42 @@ func (c *Connection) Init(
 
 	c.serialport, err = serial.OpenPort(c.serialconfig)
 	if err != nil {
+		c.serialport = nil
 		return err
 	}
+
+	c.handler = handler
 
 	return nil
 }
 
 // Run ...
-func (c *Connection) Run() (err error) {
+func (c *Connection) Run() {
+
+	if c.serialport == nil {
+		return
+	}
 
 	defer c.serialport.Close()
 
 	ticker := time.NewTicker(100 * time.Millisecond).C
-	count := int(0)
+	tickerCount := int(0)
 
 loopRun:
 	for {
 		select {
 		// This case periodically runs the read routine
 		case <-ticker:
-			if count == 0 {
+			tickerCount++
+			if tickerCount > 10 {
+				return
 			}
+			c.handler()
 		// This case receives the command struct from the app
 		case command := <-c.chanCommand:
-			data, err := internal.Serialize(command)
+			data, err := helper.Serialize(command)
 			if err != nil {
-				return err
+				return
 			}
 			if data[0] == 1 {
 			}
@@ -110,6 +122,5 @@ loopRun:
 			break loopRun
 		}
 	}
-
-	return nil
+	c.wait.Done()
 }

@@ -3,6 +3,7 @@ package tortuga
 import (
 	"errors"
 	"io/ioutil"
+	"log"
 	"strings"
 	"sync"
 	"time"
@@ -14,6 +15,8 @@ import (
 
 // Connection ...
 type Connection struct {
+	test bool
+
 	wait        *sync.WaitGroup
 	devName     string
 	chanStop    chan bool
@@ -32,17 +35,14 @@ type Connection struct {
 
 // Init this checks available ports and opens one if exists
 func (c *Connection) Init(
-	wait *sync.WaitGroup, devName string, handler func()) (err error) {
+	wait *sync.WaitGroup, devName string, handler func(), test bool) (err error) {
 
+	c.test = test
 	c.wait = wait
 	c.chanStop = make(chan bool, 1)
 	c.chanCommand = make(chan model.Command, 1)
 
 	// 1. Check if the given name has the pattern expected (/dev/ttyUSB0)
-	if !strings.Contains(devName, "dev") {
-		err := errors.New("the given device name doens't point the /dev directory")
-		return err
-	}
 	if !strings.Contains(devName, "tty") {
 		err := errors.New("the given device name doens't point a tty device file")
 		return err
@@ -52,7 +52,7 @@ func (c *Connection) Init(
 	c.devName = devName
 
 	// 3. Check if there ia a device file as the given name
-	devDir, err := ioutil.ReadDir("dev")
+	devDir, err := ioutil.ReadDir("/dev")
 	if err != nil {
 		err := errors.New("cannot read the /dev directory")
 		return err
@@ -79,6 +79,7 @@ func (c *Connection) Init(
 	c.serialport, err = serial.OpenPort(c.serialconfig)
 	if err != nil {
 		c.serialport = nil
+		log.Println("issue with the serialport")
 		return err
 	}
 
@@ -91,6 +92,8 @@ func (c *Connection) Init(
 func (c *Connection) Run() {
 
 	if c.serialport == nil {
+		c.wait.Done()
+		log.Println("issue with the serialport")
 		return
 	}
 
@@ -104,10 +107,14 @@ loopRun:
 		select {
 		// This case periodically runs the read routine
 		case <-ticker:
-			tickerCount++
-			if tickerCount > 10 {
-				return
+			if c.test {
+				tickerCount++
+				if tickerCount > 10 {
+					c.wait.Done()
+					return
+				}
 			}
+
 			c.handler()
 		// This case receives the command struct from the app
 		case command := <-c.chanCommand:

@@ -8,11 +8,22 @@ import (
 )
 
 func main() {
+	log.Println("Hello!")
+
 	waitInstance := sync.WaitGroup{}
-	h := handler
 
 	tConn := tortuga.Connection{}
-	tConn.Init(&waitInstance, "/dev/ttyUSB0", h)
+	err := tConn.Init(&waitInstance, "ttyUSB0", handler, true)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	waitInstance.Add(1)
+	go tConn.Run()
+
+	waitInstance.Wait()
+
+	log.Println("Bye!")
 }
 
 func handler() {

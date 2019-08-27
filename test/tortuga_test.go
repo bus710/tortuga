@@ -39,5 +39,4 @@ func Test(t *testing.T) {
 }
 
 func (t *testHelper) handler(packet model.Packet) {
-	log.Println("hi")
 }

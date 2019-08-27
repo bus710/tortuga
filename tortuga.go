@@ -28,12 +28,12 @@ type Connection struct {
 	pLoc    []uint16 // Pleamble Location
 	residue []byte   // Used if there is a leftover bytes after parsing
 
-	handler func()
+	handler func(packet model.Packet)
 }
 
 // Init this checks available ports and opens one if exists
 func (c *Connection) Init(
-	wait *sync.WaitGroup, handler func(), devName string) (err error) {
+	wait *sync.WaitGroup, handler func(packet model.Packet), devName string) (err error) {
 
 	c.wait = wait
 	c.handler = handler
@@ -41,6 +41,9 @@ func (c *Connection) Init(
 
 	c.chanStop = make(chan bool, 1)
 	c.chanCommand = make(chan model.Command, 1)
+
+	p := model.Packet{}
+	c.handler(p)
 
 	// 1. Check if the given name has the pattern expected (/dev/ttyUSB0)
 	if !strings.Contains(devName, "tty") {
@@ -98,19 +101,13 @@ func (c *Connection) Run() {
 	defer c.serialport.Close()
 
 	ticker := time.NewTicker(100 * time.Millisecond).C
-	tickerCount := int(0)
 
 loopRun:
 	for {
 		select {
 		// This case periodically runs the read routine
 		case <-ticker:
-			tickerCount++
-			if tickerCount > 10 {
-				c.wait.Done()
-				return
-			}
-
+			time.Sleep(time.Millisecond * 5)
 		// This case receives the command struct from the app
 		case command := <-c.chanCommand:
 			data, err := helper.Serialize(command)

@@ -33,19 +33,19 @@ func Test(t *testing.T) {
 	go tHelper.conn.Run()
 
 	time.Sleep(time.Second * 1)
-	command.BaseControlCommand(50, 0)
+	tHelper.conn.Send(command.BaseControlCommand(50, 0))
 
 	time.Sleep(time.Second * 1)
-	command.BaseControlCommand(50, 10)
+	tHelper.conn.Send(command.BaseControlCommand(50, 10))
 
 	time.Sleep(time.Second * 1)
-	command.BaseControlCommand(50, -10)
+	tHelper.conn.Send(command.BaseControlCommand(50, -10))
 
 	time.Sleep(time.Second * 1)
-	command.BaseControlCommand(50, 0)
+	tHelper.conn.Send(command.BaseControlCommand(50, 0))
 
 	time.Sleep(time.Second * 1)
-	command.BaseControlCommand(0, 0)
+	tHelper.conn.Send(command.BaseControlCommand(0, 0))
 
 	tHelper.conn.Stop()
 

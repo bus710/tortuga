@@ -1,92 +1,102 @@
 package command
 
-// func (t *tortuga) SendBaseControlCommand(
-// 	speed, radius int16) (
-// 	cmd Command) {
+import (
+	constant "github.com/bus710/tortuga/internal/constant"
+	model "github.com/bus710/tortuga/internal/model"
+)
 
-// 	cmd.length = lenBaseControl
-// 	cmd.id = idBaseControl
-// 	cmd.size = sizeBaseControl
+// BaseControlCommand moves the body regarding the params
+func BaseControlCommand(
+	speed, radius int16) (
+	cmd model.Command) {
 
-// 	cmd.payload[0] = byte(speed & 0xff)
-// 	cmd.payload[1] = byte((speed >> 8) & 0xff)
-// 	cmd.payload[2] = byte(radius & 0xff)
-// 	cmd.payload[3] = byte((radius >> 8) & 0xff)
+	cmd.Length = constant.LenBaseControl
+	cmd.ID = constant.IDBaseControl
+	cmd.Size = constant.SizeBaseControl
 
-// 	return cmd
-// }
+	cmd.Payload[0] = byte(speed & 0xff)
+	cmd.Payload[1] = byte((speed >> 8) & 0xff)
+	cmd.Payload[2] = byte(radius & 0xff)
+	cmd.Payload[3] = byte((radius >> 8) & 0xff)
 
-// func (t *tortuga) SendSoundCommand(
-// 	f, a, duration uint8) (
-// 	cmd Command) {
+	return cmd
+}
 
-// 	cmd.length = lenSound
-// 	cmd.id = idSound
-// 	cmd.size = sizeSound
+// SoundCommand makes sound in the low level
+func SoundCommand(
+	f, a, duration uint8) (
+	cmd model.Command) {
 
-// 	tmp := uint16(1 / (f * a))
+	cmd.Length = constant.LenSound
+	cmd.ID = constant.IDSound
+	cmd.Size = constant.SizeSound
 
-// 	cmd.payload[0] = byte(tmp & 0xff)
-// 	cmd.payload[1] = byte((tmp >> 8) & 0xff)
-// 	cmd.payload[2] = byte(duration)
+	tmp := uint16(1 / (f * a))
 
-// 	return cmd
-// }
+	cmd.Payload[0] = byte(tmp & 0xff)
+	cmd.Payload[1] = byte((tmp >> 8) & 0xff)
+	cmd.Payload[2] = byte(duration)
 
-// func (t *tortuga) SendSoundSequenceCommand(
-// 	sequence uint8) (
-// 	cmd Command) {
+	return cmd
+}
 
-// 	cmd.length = lenSoundSequence
-// 	cmd.id = idSoundSequence
-// 	cmd.size = sizeSoundSequence
+// SoundSequenceCommand makes the robot to sing
+func SoundSequenceCommand(
+	sequence uint8) (
+	cmd model.Command) {
 
-// 	cmd.payload[0] = byte(sequence)
+	cmd.Length = constant.LenSoundSequence
+	cmd.ID = constant.IDSoundSequence
+	cmd.Size = constant.SizeSoundSequence
 
-// 	return cmd
-// }
+	cmd.Payload[0] = byte(sequence)
 
-// func (t *tortuga) SendRequestExtraCommand(
-// 	hwVer, fwVer, udid bool) (
-// 	cmd Command) {
+	return cmd
+}
 
-// 	cmd.length = lenRequestExtra
-// 	cmd.id = idRequestExtra
-// 	cmd.size = sizeRequestExtra
+// RequestExtraCommand requests the robot's information
+func RequestExtraCommand(
+	hwVer, fwVer, udid bool) (
+	cmd model.Command) {
 
-// 	tmp := byte(0x00)
+	cmd.Length = constant.LenRequestExtra
+	cmd.ID = constant.IDRequestExtra
+	cmd.Size = constant.SizeRequestExtra
 
-// 	if hwVer {
-// 		tmp |= 0x01
-// 	}
-// 	if fwVer {
-// 		tmp |= 0x02
-// 	}
-// 	if udid {
-// 		tmp |= 0x08
-// 	}
+	tmp := byte(0x00)
 
-// 	cmd.payload[0] = tmp
+	if hwVer {
+		tmp |= 0x01
+	}
+	if fwVer {
+		tmp |= 0x02
+	}
+	if udid {
+		tmp |= 0x08
+	}
 
-// 	return cmd
-// }
+	cmd.Payload[0] = tmp
 
-// func (t *tortuga) SendGeneralPurposeOutputCommand(
-// 	digitalOutput0,
-// 	digitalOutput1,
-// 	digitalOutput2,
-// 	digitalOutpu3 bool,
-// 	power3v3,
-// 	power5v0,
-// 	power12va,
-// 	power12vb bool,
-// 	redLed1,
-// 	greenLed1,
-// 	redLed2,
-// 	greenLed2 bool) (cmd Command) {
+	return cmd
+}
 
-// 	if digitalOutput {
+// GeneralPurposeOutputCommand controls the GPIOs, power outputs, and the LEDs
+func GeneralPurposeOutputCommand(
+	digitalOutput0,
+	digitalOutput1,
+	digitalOutput2,
+	digitalOutpu3 bool,
+	power3v3,
+	power5v0,
+	power12va,
+	power12vb bool,
+	redLed1,
+	greenLed1,
+	redLed2,
+	greenLed2 bool) (cmd model.Command) {
 
-// 	}
-// 	return cmd
-// }
+	// TODO: implementation
+	// if digitalOutput {
+	// }
+	return cmd
+}

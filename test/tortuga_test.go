@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bus710/tortuga/internal/command"
+
 	"github.com/bus710/tortuga"
 	"github.com/bus710/tortuga/internal/model"
 )
@@ -30,7 +32,21 @@ func Test(t *testing.T) {
 	waitInstance.Add(1)
 	go tHelper.conn.Run()
 
-	time.Sleep(time.Second * 5)
+	time.Sleep(time.Second * 1)
+	command.BaseControlCommand(50, 0)
+
+	time.Sleep(time.Second * 1)
+	command.BaseControlCommand(50, 10)
+
+	time.Sleep(time.Second * 1)
+	command.BaseControlCommand(50, -10)
+
+	time.Sleep(time.Second * 1)
+	command.BaseControlCommand(50, 0)
+
+	time.Sleep(time.Second * 1)
+	command.BaseControlCommand(0, 0)
+
 	tHelper.conn.Stop()
 
 	waitInstance.Wait()

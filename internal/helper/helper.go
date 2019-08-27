@@ -5,27 +5,29 @@ import (
 )
 
 // Serialize ...
-func Serialize(command model.Command) (data []byte, err error) {
+func Serialize(cmd model.Command) (data []byte) {
 	data = make([]byte, 0)
 
-	// headers
+	// Headers
 	data = append(data, 0xAA)
 	data = append(data, 0x55)
 
-	// length
-	data = append(data, command.Length)
+	// Total Length
+	data = append(data, cmd.Length)
 
-	// base control
-	data = append(data, command.ID)
-	data = append(data, command.Size)
+	// ID
+	data = append(data, cmd.ID)
 
-	// CRC calculation
-	command.CRC = 0
-	for i := 0; i < int(command.Size); i++ {
-		data = append(data, command.Payload[i])
-		command.CRC = command.CRC ^ command.Payload[i]
+	// Size of the following params
+	data = append(data, cmd.Size)
+
+	// Playload and CRC
+	cmd.CRC = 0
+	for i := 0; i < int(cmd.Size); i++ {
+		data = append(data, cmd.Payload[i])
+		cmd.CRC = cmd.CRC ^ cmd.Payload[i]
 	}
-	data = append(data, command.CRC)
+	data = append(data, cmd.CRC)
 
-	return data, nil
+	return data
 }

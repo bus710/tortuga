@@ -10,10 +10,10 @@ import (
 
 	helper "github.com/bus710/tortuga/internal/helper"
 	model "github.com/bus710/tortuga/internal/model"
-	"github.com/tarm/serial"
+	serial "github.com/tarm/serial"
 )
 
-// Connection ...
+// Connection defines the internal variables
 type Connection struct {
 	wait        *sync.WaitGroup
 	devName     string
@@ -42,12 +42,9 @@ func (c *Connection) Init(
 	c.chanStop = make(chan bool, 1)
 	c.chanCommand = make(chan model.Command, 1)
 
-	p := model.Packet{}
-	c.handler(p)
-
 	// 1. Check if the given name has the pattern expected (/dev/ttyUSB0)
 	if !strings.Contains(devName, "tty") {
-		err := errors.New("the given device name doens't point a tty device file")
+		err := errors.New("the given device name doens't point to a tty device file")
 		return err
 	}
 
@@ -66,7 +63,7 @@ func (c *Connection) Init(
 	}
 
 	if !found {
-		err := errors.New("cannot find a device file as the given name")
+		err := errors.New("cannot find a device file as the given name - " + c.devName)
 		return err
 	}
 
@@ -79,7 +76,6 @@ func (c *Connection) Init(
 	c.serialport, err = serial.OpenPort(c.serialconfig)
 	if err != nil {
 		c.serialport = nil
-		log.Println("issue with the serialport")
 		return err
 	}
 
@@ -94,7 +90,6 @@ func (c *Connection) Run() {
 
 	if c.serialport == nil {
 		c.wait.Done()
-		log.Println("issue with the serialport")
 		return
 	}
 
@@ -108,14 +103,15 @@ loopRun:
 		// This case periodically runs the read routine
 		case <-ticker:
 			time.Sleep(time.Millisecond * 5)
+
 		// This case receives the command struct from the app
 		case command := <-c.chanCommand:
-			data, err := helper.Serialize(command)
+			data := helper.Serialize(command)
+			err := c.writePort(data)
 			if err != nil {
-				return
+				log.Println(err)
 			}
-			if data[0] == 1 {
-			}
+
 		// This case receives a stop signal
 		case <-c.chanStop:
 			break loopRun
@@ -124,7 +120,42 @@ loopRun:
 	c.wait.Done()
 }
 
-// Stop ...
+// Stop signals to stop the loop
 func (c *Connection) Stop() {
 	c.chanStop <- true
+}
+
+// Send sends command to the robot
+func (c *Connection) Send(cmd model.Command) {
+	c.chanCommand <- cmd
+}
+
+// writePort is written to protect the write function
+func (c *Connection) writePort(data []byte) (err error) {
+
+	if len(data) > 64 {
+		return errors.New("too long data")
+	}
+
+	writtenLen, err := c.serialport.Write(data)
+	if err != nil {
+		return err
+	}
+
+	if writtenLen != len(data) {
+		return errors.New("written length is not matched")
+	}
+	return nil
+}
+
+// readPort is written to start the marshaling
+func (c *Connection) readPort() (err error) {
+
+	c.buf = make([]byte, 8192)
+	c.numRead, err = c.serialport.Read(c.buf)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

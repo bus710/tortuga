@@ -15,20 +15,22 @@ import (
 
 // Connection defines the internal variables
 type Connection struct {
-	wait        *sync.WaitGroup
-	devName     string
+	wait    *sync.WaitGroup
+	handler func(packet model.Packet)
+	devName string
+
 	chanStop    chan bool
 	chanCommand chan model.Command
 
 	serialport   *serial.Port
 	serialconfig *serial.Config
 
-	numRead int
+	numRead uint16
 	buf     []byte
 	pLoc    []uint16 // Pleamble Location
 	residue []byte   // Used if there is a leftover bytes after parsing
 
-	handler func(packet model.Packet)
+	errCount int
 }
 
 // Init this checks available ports and opens one if exists
@@ -100,20 +102,31 @@ func (c *Connection) Run() {
 loopRun:
 	for {
 		select {
-		// This case periodically runs the read routine
 		case <-ticker:
-			time.Sleep(time.Millisecond * 5)
+			// Downstream - from app to robot
+			err := c.readPort()
+			if err != nil {
+				c.errCount++
+				if c.errCount > 3 {
+					// If reading the port fails more than 3 times
+					break loopRun
+				}
+			}
 
-		// This case receives the command struct from the app
+			c.numRead, c.buf = helper.MergeResidue(c.residue, c.numRead, c.buf)
+			c.pLoc = helper.SearchHeader(c.numRead, c.buf)
+			helper.DividePacket()
+
 		case command := <-c.chanCommand:
+			// Upstream - from robot to app
 			data := helper.Serialize(command)
 			err := c.writePort(data)
 			if err != nil {
 				log.Println(err)
 			}
 
-		// This case receives a stop signal
 		case <-c.chanStop:
+			// Routine cenceler
 			break loopRun
 		}
 	}

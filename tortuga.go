@@ -25,7 +25,7 @@ type Connection struct {
 	serialport   *serial.Port
 	serialconfig *serial.Config
 
-	numRead uint16
+	// numRead uint16
 	buf     []byte
 	pLoc    []uint16 // Pleamble Location
 	residue []byte   // Used if there is a leftover bytes after parsing
@@ -113,9 +113,9 @@ loopRun:
 				}
 			}
 
-			c.numRead, c.buf = helper.MergeResidue(c.residue, c.numRead, c.buf)
-			c.pLoc = helper.SearchHeader(c.numRead, c.buf)
-			c.residue = helper.DividePacket(c.pLoc, c.buf)
+			c.buf = helper.MergeResidue(c.residue, c.buf)
+			c.pLoc = helper.SearchHeader(c.buf)
+			c.residue = helper.DividePacket(c.pLoc, c.buf, c.handler)
 
 		case command := <-c.chanCommand:
 			// Upstream - from robot to app
@@ -165,7 +165,7 @@ func (c *Connection) writePort(data []byte) (err error) {
 func (c *Connection) readPort() (err error) {
 
 	c.buf = make([]byte, 8192)
-	c.numRead, err = c.serialport.Read(c.buf)
+	_, err = c.serialport.Read(c.buf)
 	if err != nil {
 		return err
 	}

@@ -33,15 +33,15 @@ func Serialize(cmd model.Command) (data []byte) {
 }
 
 // MergeResidue ...
-func MergeResidue(residue []byte, numRead uint16, buf []byte) (newNumRead uint16, newBuf []byte) {
-	newNumRead += uint16(len(residue))
+func MergeResidue(residue []byte, buf []byte) (newBuf []byte) {
 	newBuf = append(residue, buf...)
 
-	return newNumRead, newBuf
+	return newBuf
 }
 
 // SearchHeader ...
-func SearchHeader(numRead uint16, buf []byte) (pLoc []uint16) {
+func SearchHeader(buf []byte) (pLoc []uint16) {
+	numRead := uint16(len(buf))
 	pLoc = make([]uint16, 0)
 	pLoc = append(pLoc, 0) // preamble consists of 2 digits
 
@@ -52,14 +52,14 @@ func SearchHeader(numRead uint16, buf []byte) (pLoc []uint16) {
 		}
 	}
 
-	pLoc = append(pLoc, uint16(numRead+1)) // To make the tail to be scan in the next step
+	pLoc = append(pLoc, uint16(numRead+1)) // To make the tail to be scanned in the next step
 	pLoc = append(pLoc, 0)                 // To indicate this is the last cell
 
 	return pLoc
 }
 
 // DividePacket ...
-func DividePacket(pLoc []uint16, buf []byte) (residue []byte) {
+func DividePacket(pLoc []uint16, buf []byte, handler func(packet model.Packet)) (residue []byte) {
 
 	residue = make([]byte, 0)
 
@@ -68,10 +68,13 @@ func DividePacket(pLoc []uint16, buf []byte) (residue []byte) {
 			break
 		}
 
-		end := pLoc[i+1]
+		end := pLoc[i+1] // This is actually the location of the fist byte of the next packet
 		if end != 0 {
 			if CheckCRC(start, end, buf) {
 				// log.Printf("%d, %d, %d - %x \n", i, start, end, t.buf[start:end])
+				p := model.Packet{}
+				handler(p)
+				residue = make([]byte, 0)
 			} else {
 				// log.Println("CRC error")
 				residue = buf[start:end]

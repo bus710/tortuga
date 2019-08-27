@@ -15,8 +15,6 @@ import (
 
 // Connection ...
 type Connection struct {
-	test bool
-
 	wait        *sync.WaitGroup
 	devName     string
 	chanStop    chan bool
@@ -35,10 +33,12 @@ type Connection struct {
 
 // Init this checks available ports and opens one if exists
 func (c *Connection) Init(
-	wait *sync.WaitGroup, devName string, handler func(), test bool) (err error) {
+	wait *sync.WaitGroup, handler func(), devName string) (err error) {
 
-	c.test = test
 	c.wait = wait
+	c.handler = handler
+	c.devName = devName
+
 	c.chanStop = make(chan bool, 1)
 	c.chanCommand = make(chan model.Command, 1)
 
@@ -48,10 +48,7 @@ func (c *Connection) Init(
 		return err
 	}
 
-	// 2. Accept the given name and store it in the struct
-	c.devName = devName
-
-	// 3. Check if there ia a device file as the given name
+	// 2. Check if there ia a device file as the given name
 	devDir, err := ioutil.ReadDir("/dev")
 	if err != nil {
 		err := errors.New("cannot read the /dev directory")
@@ -70,7 +67,7 @@ func (c *Connection) Init(
 		return err
 	}
 
-	// 4. Config and open a serial port with the given name
+	// 3. Config and open a serial port with the given name
 	c.serialconfig = &serial.Config{
 		Name: "/dev/" + c.devName,
 		Baud: 115200,
@@ -83,12 +80,13 @@ func (c *Connection) Init(
 		return err
 	}
 
-	c.handler = handler
-
 	return nil
 }
 
-// Run ...
+// Run does these:
+// - reads the port opened once 100 ms and passes the data received to parse to be the packet struct
+// - serializes a command from the app as a byte slice and writes it to the port opened
+// - when the port is disconnected or there is a stop signal (chanStop), stops the loop and exits
 func (c *Connection) Run() {
 
 	if c.serialport == nil {
@@ -107,15 +105,12 @@ loopRun:
 		select {
 		// This case periodically runs the read routine
 		case <-ticker:
-			if c.test {
-				tickerCount++
-				if tickerCount > 10 {
-					c.wait.Done()
-					return
-				}
+			tickerCount++
+			if tickerCount > 10 {
+				c.wait.Done()
+				return
 			}
 
-			c.handler()
 		// This case receives the command struct from the app
 		case command := <-c.chanCommand:
 			data, err := helper.Serialize(command)
@@ -130,4 +125,9 @@ loopRun:
 		}
 	}
 	c.wait.Done()
+}
+
+// Stop ...
+func (c *Connection) Stop() {
+	c.chanStop <- true
 }

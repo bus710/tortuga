@@ -1,6 +1,0 @@
-github.com/bus710/tortuga v0.0.0-20190826044110-9a36b6549096 h1:8zGk01QKVgrK78716JxC3vGRIj6V+3SjZZrHUM/r2Qg=
-github.com/bus710/tortuga v0.0.0-20190826044110-9a36b6549096/go.mod h1:5dsl7Fef650+WcYYATa1HOJV/ujRvWxyw/+rfszqUXA=
-github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07 h1:UyzmZLoiDWMRywV4DUYb9Fbt8uiOSooupjTq10vpvnU=
-github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07/go.mod h1:kDXzergiv9cbyO7IOYJZWg1U88JhDg3PB6klq9Hg2pA=
-golang.org/x/sys v0.0.0-20190825160603-fb81701db80f h1:LCxigP8q3fPRGNVYndYsyHnF0zRrvcoVwZMfb8iQZe4=
-golang.org/x/sys v0.0.0-20190825160603-fb81701db80f/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=

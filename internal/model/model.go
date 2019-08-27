@@ -9,3 +9,6 @@ type Command struct {
 	Payload [15]byte
 	CRC     byte
 }
+
+// Packet can be used as a parsed data stream
+type Packet struct{}

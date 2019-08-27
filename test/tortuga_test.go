@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/bus710/tortuga"
-	"github.com/bus710/tortuga/intenal/model"
+	"github.com/bus710/tortuga/internal/model"
 )
 
 type testHelper struct {

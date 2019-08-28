@@ -31,21 +31,22 @@ func Test(t *testing.T) {
 	waitInstance.Add(1)
 	go tHelper.conn.Run()
 
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 3)
 	tHelper.conn.Send(command.BaseControlCommand(50, 0))
 
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 3)
 	tHelper.conn.Send(command.BaseControlCommand(50, 10))
 
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 3)
 	tHelper.conn.Send(command.BaseControlCommand(50, -10))
 
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 3)
 	tHelper.conn.Send(command.BaseControlCommand(50, 0))
 
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 3)
 	tHelper.conn.Send(command.BaseControlCommand(0, 0))
 
+	time.Sleep(time.Second * 3)
 	tHelper.conn.Stop()
 
 	waitInstance.Wait()

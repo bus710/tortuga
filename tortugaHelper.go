@@ -36,7 +36,7 @@ func (c *Connection) readPort() (err error) {
 	return nil
 }
 
-func (c *Connection) serialize(cmd model.Command) (data []byte, err error) {
+func (c *Connection) serialize(cmd model.Command) (data []byte) {
 	data = make([]byte, 0)
 
 	// headers
@@ -58,7 +58,7 @@ func (c *Connection) serialize(cmd model.Command) (data []byte, err error) {
 	}
 	data = append(data, cmd.CRC)
 
-	return data, nil
+	return data
 }
 
 func (c *Connection) mergeResidue() (err error) {

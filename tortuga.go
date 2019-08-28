@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	helper "github.com/bus710/tortuga/internal/helper"
 	model "github.com/bus710/tortuga/internal/model"
 	serial "github.com/tarm/serial"
 )
@@ -118,7 +117,7 @@ loopRun:
 
 		case command := <-c.chanCommand:
 			// Upstream - from robot to app
-			data := helper.Serialize(command)
+			data := c.serialize(command)
 			err := c.writePort(data)
 			if err != nil {
 				log.Println(err)

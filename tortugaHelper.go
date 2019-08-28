@@ -29,7 +29,7 @@ func (c *Connection) writePort(data []byte) (err error) {
 func (c *Connection) readPort() (err error) {
 
 	c.buf = make([]byte, 8192)
-	_, err = c.serialport.Read(c.buf)
+	c.numRead, err = c.serialport.Read(c.buf)
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func (c *Connection) serialize(cmd model.Command) (data []byte) {
 }
 
 func (c *Connection) mergeResidue() (err error) {
-	c.numRead += uint16(len(c.residue))
+	c.numRead += len(c.residue)
 	c.buf = append(c.residue, c.buf...)
 
 	return nil
@@ -94,11 +94,13 @@ func (c *Connection) dividePacket() (err error) {
 
 	/* */
 	for i, start := range c.pLoc {
+
 		if i+1 == len(c.pLoc) {
 			break
 		}
 
 		end := c.pLoc[i+1]
+
 		if end != 0 {
 			if c.checkCRC(start, end) {
 				// log.Printf("%d, %d, %d - %x \n", i, start, end, t.buf[start:end])

@@ -24,7 +24,7 @@ type Connection struct {
 	serialport   *serial.Port
 	serialconfig *serial.Config
 
-	numRead uint16
+	numRead int
 	buf     []byte
 	pLoc    []uint16 // Pleamble Location
 	residue []byte   // Used if there is a leftover bytes after parsing

@@ -92,7 +92,6 @@ func (c *Connection) searchHeader() (err error) {
 
 func (c *Connection) dividePacket() (err error) {
 
-	/* */
 	for i, start := range c.pLoc {
 
 		if i+1 == len(c.pLoc) {

@@ -31,17 +31,17 @@ func Test(t *testing.T) {
 	waitInstance.Add(1)
 	go tHelper.conn.Run()
 
-	log.Println("a")
-	tHelper.conn.Send(command.BaseControlCommand(50, 0))
-	time.Sleep(time.Second * 5)
+	for i := 5; i < 5; i++ {
+		log.Println("a")
+		tHelper.conn.Send(command.BaseControlCommand(50, 0))
+		time.Sleep(time.Second * 1)
+	}
 
-	log.Println("a")
-	tHelper.conn.Send(command.BaseControlCommand(50, 60))
-	time.Sleep(time.Second * 5)
-
-	log.Println("a")
-	tHelper.conn.Send(command.BaseControlCommand(0, 0))
-	time.Sleep(time.Second * 5)
+	for i := 5; i < 5; i++ {
+		log.Println("a")
+		tHelper.conn.Send(command.BaseControlCommand(-50, 0))
+		time.Sleep(time.Second * 1)
+	}
 
 	tHelper.conn.Stop()
 

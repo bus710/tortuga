@@ -59,6 +59,9 @@ func (c *Connection) serialize(cmd model.Command) (data []byte) {
 	}
 	data = append(data, cmd.CRC)
 	data = append(data, 0)
+	data = append(data, 0)
+	data = append(data, 0)
+	data = append(data, 0)
 
 	return data
 }

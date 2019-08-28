@@ -75,9 +75,11 @@ func (c *Connection) searchHeader() (err error) {
 	c.pLoc = append(c.pLoc, 0)
 
 	for i := uint16(0); i < uint16(c.numRead); i++ {
-		if c.buf[i] == 0xaa && c.buf[i+1] == 0x55 {
-			c.pLoc = append(c.pLoc, i)
-			i += 80
+		if i < uint16(len(c.buf)) {
+			if c.buf[i] == 0xaa && c.buf[i+1] == 0x55 {
+				c.pLoc = append(c.pLoc, i)
+				i += 80
+			}
 		}
 	}
 

@@ -20,7 +20,7 @@ func (c *Connection) writePort(data []byte) (err error) {
 	}
 
 	if writtenLen != len(data) {
-		return errors.New("written length is not matched")
+		return errors.New("written length is not matched to the data size")
 	}
 	return nil
 }

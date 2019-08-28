@@ -33,8 +33,15 @@ func Test(t *testing.T) {
 
 	log.Println("a")
 	tHelper.conn.Send(command.BaseControlCommand(50, 0))
-	tHelper.conn.Send(command.BaseControlCommand(50, 0))
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 5)
+
+	log.Println("a")
+	tHelper.conn.Send(command.BaseControlCommand(50, 60))
+	time.Sleep(time.Second * 5)
+
+	log.Println("a")
+	tHelper.conn.Send(command.BaseControlCommand(0, 0))
+	time.Sleep(time.Second * 5)
 
 	tHelper.conn.Stop()
 

@@ -6,9 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bus710/tortuga/internal/command"
-
 	"github.com/bus710/tortuga"
+	"github.com/bus710/tortuga/cmd/command"
 	"github.com/bus710/tortuga/internal/model"
 )
 

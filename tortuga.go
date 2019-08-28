@@ -25,7 +25,7 @@ type Connection struct {
 	serialport   *serial.Port
 	serialconfig *serial.Config
 
-	// numRead uint16
+	numRead uint16
 	buf     []byte
 	pLoc    []uint16 // Pleamble Location
 	residue []byte   // Used if there is a leftover bytes after parsing
@@ -108,14 +108,13 @@ loopRun:
 			if err != nil {
 				c.errCount++
 				if c.errCount > 3 {
-					// If reading the port fails more than 3 times
+					// If fail to read the port fails more than 3 times
 					break loopRun
 				}
 			}
-
-			c.buf = helper.MergeResidue(c.residue, c.buf)
-			c.pLoc = helper.SearchHeader(c.buf)
-			c.residue = helper.DividePacket(c.pLoc, c.buf, c.handler)
+			c.mergeResidue()
+			c.searchHeader()
+			c.dividePacket()
 
 		case command := <-c.chanCommand:
 			// Upstream - from robot to app
@@ -141,34 +140,4 @@ func (c *Connection) Stop() {
 // Send sends command to the robot
 func (c *Connection) Send(cmd model.Command) {
 	c.chanCommand <- cmd
-}
-
-// writePort is written to protect the write function
-func (c *Connection) writePort(data []byte) (err error) {
-
-	if len(data) > 64 {
-		return errors.New("too long data")
-	}
-
-	writtenLen, err := c.serialport.Write(data)
-	if err != nil {
-		return err
-	}
-
-	if writtenLen != len(data) {
-		return errors.New("written length is not matched")
-	}
-	return nil
-}
-
-// readPort is written to start the marshaling
-func (c *Connection) readPort() (err error) {
-
-	c.buf = make([]byte, 8192)
-	_, err = c.serialport.Read(c.buf)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

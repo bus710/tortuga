@@ -58,10 +58,6 @@ func (c *Connection) serialize(cmd model.Command) (data []byte) {
 		cmd.CRC = cmd.CRC ^ cmd.Payload[i]
 	}
 	data = append(data, cmd.CRC)
-	data = append(data, 0)
-	data = append(data, 0)
-	data = append(data, 0)
-	data = append(data, 0)
 
 	return data
 }
@@ -107,7 +103,7 @@ func (c *Connection) dividePacket() (err error) {
 
 		if end != 0 {
 			if c.checkCRC(start, end) {
-				// log.Printf("%d, %d, %d - %x \n", i, start, end, t.buf[start:end])
+				log.Printf("%d, %d, %d - %x \n", i, start, end, c.buf[start:end])
 				c.residue = make([]byte, 0)
 			} else {
 				// log.Println("CRC error")

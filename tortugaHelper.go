@@ -2,6 +2,7 @@ package tortuga
 
 import (
 	"errors"
+	"log"
 
 	model "github.com/bus710/tortuga/internal/model"
 )
@@ -116,6 +117,9 @@ func (c *Connection) checkCRC(start, end uint16) bool {
 
 	crc := c.buf[start+2]
 	for i := start + 3; i < end-1; i++ {
+		if uint16(len(c.buf)) < i {
+			log.Println(i)
+		}
 		crc = crc ^ c.buf[i]
 	}
 

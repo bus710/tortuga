@@ -66,5 +66,5 @@ const (
 	SizeRawDataOf3AxisGyroB    = 20
 	SizeGeneralPurposeInput    = 16
 	SizeUniqueDeviceIdentifier = 12
-	SizeControllerInfo         = 21
+	SizeControllerInfo         = 13
 )

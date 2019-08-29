@@ -37,7 +37,7 @@ type BasicSensorData struct {
 	Cliff            byte
 	LeftEncoder      uint16
 	RightEncoder     uint16
-	LeftPWN          byte
+	LeftPWM          byte
 	RightPWM         byte
 	Button           byte
 	Charger          byte
@@ -46,31 +46,79 @@ type BasicSensorData struct {
 }
 
 // DockingIR ...
-type DockingIR struct{}
+type DockingIR struct {
+	RightSignal   byte
+	CentralSignal byte
+	LeftSignal    byte
+}
 
 // InertialSensor ...
-type InertialSensor struct{}
+type InertialSensor struct {
+	Angle     uint16
+	AngleRate uint16
+}
 
 // Cliff ...
-type Cliff struct{}
+type Cliff struct {
+	RightCliffSensor   uint16
+	CentralCliffSensor uint16
+	LeftCliffSensor    uint16
+}
 
 // Current ...
-type Current struct{}
+type Current struct {
+	LeftMotor  byte
+	RightMotor byte
+}
 
 // HardwareVersion ...
-type HardwareVersion struct{}
+type HardwareVersion struct {
+	Patch byte
+	Minor byte
+	Major byte
+}
 
 // FirmwareVersion ...
-type FirmwareVersion struct{}
+type FirmwareVersion struct {
+	Patch byte
+	Minor byte
+	Major byte
+}
 
 // Gyro ...
-type Gyro struct{}
+type Gyro struct {
+	FrameID                byte
+	RawGyroDataArrayLength byte
+	RawGyroDataArray       [3]RawGyroData
+}
+
+// RawGyroData ...
+type RawGyroData struct {
+	X uint16
+	Y uint16
+	Z uint16
+}
 
 // GeneralPurposeInput ...
-type GeneralPurposeInput struct{}
+type GeneralPurposeInput struct {
+	DigitalInput   uint16
+	AnalogInputCH0 uint16
+	AnalogInputCH1 uint16
+	AnalogInputCH2 uint16
+	AnalogInputCH3 uint16
+}
 
 // UniqueDeviceIdentifier ...
-type UniqueDeviceIdentifier struct{}
+type UniqueDeviceIdentifier struct {
+	UDID0 uint32
+	UDID1 uint32
+	UDID2 uint32
+}
 
 // ControllerInfo ...
-type ControllerInfo struct{}
+type ControllerInfo struct {
+	Type  byte
+	PGain uint32
+	IGain uint32
+	DGain uint32
+}

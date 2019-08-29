@@ -175,8 +175,56 @@ func (c *Connection) formatFeedback(start, end uint16) {
 		case constant.IDBasicSensorData:
 			{
 				fdb.AvailableContent = (1 << constant.IDBasicSensorData)
-				fdb.BasicSensorData.TimeStamp = uint16(tmp[index+2]) << 8
-				fdb.BasicSensorData.TimeStamp |= uint16(tmp[index+1])
+				fdb.BasicSensorData.TimeStamp = uint16(tmp[index+2])
+				fdb.BasicSensorData.TimeStamp |= (uint16(tmp[index+3]) << 8)
+				fdb.BasicSensorData.Bumper = tmp[index+4]
+				fdb.BasicSensorData.WheelDrop = tmp[index+5]
+				fdb.BasicSensorData.Cliff = tmp[index+6]
+				fdb.BasicSensorData.LeftEncoder = uint16(tmp[index+7])
+				fdb.BasicSensorData.LeftEncoder |= (uint16(tmp[index+8]) << 8)
+				fdb.BasicSensorData.RightEncoder = uint16(tmp[index+9])
+				fdb.BasicSensorData.RightEncoder |= (uint16(tmp[index+10]) << 8)
+				fdb.BasicSensorData.LeftPWM = tmp[index+11]
+				fdb.BasicSensorData.RightPWM = tmp[index+12]
+				fdb.BasicSensorData.Button = tmp[index+13]
+				fdb.BasicSensorData.Charger = tmp[index+14]
+				fdb.BasicSensorData.Battery = tmp[index+15]
+				fdb.BasicSensorData.OvercurrentFlags = tmp[index+16]
+				index += 17
+			}
+		case constant.IDDockingIR:
+			{
+			}
+		case constant.IDInertialSensor:
+			{
+			}
+		case constant.IDCliff:
+			{
+			}
+		case constant.IDCurrent:
+			{
+			}
+		case constant.IDHardwareVersion:
+			{
+			}
+		case constant.IDFirmwareVersion:
+			{
+			}
+		case constant.IDRawDataOf3AxisGyro:
+			{
+			}
+		case constant.IDGeneralPurposeInput:
+			{
+			}
+		case constant.IDUniqueDeviceIdentifier:
+			{
+			}
+		case constant.IDControllerInfo:
+			{
+			}
+		default:
+			{
+				log.Println("Check the raw data...")
 			}
 		}
 	}

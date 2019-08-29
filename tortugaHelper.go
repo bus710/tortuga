@@ -236,9 +236,34 @@ func (c *Connection) formatFeedback(start, end uint16) {
 			index = index + constant.SizeFirmwareVersion + 2
 		case constant.IDRawDataOf3AxisGyro:
 			fdb.AvailableContent |= (1 << constant.IDRawDataOf3AxisGyro)
+			fdb.Gyro.FrameID = tmp[index+2]
+			fdb.Gyro.FollowedDataLength = tmp[index+3]
 
-			// index = index + constant.SizeRawDataOf3AxisGyroA+ 2
-			// index = index + constant.SizeRawDataOf3AxisGyroA+ 2
+			fdb.Gyro.RawGyroDataArray[0].X = uint16(tmp[index+4])
+			fdb.Gyro.RawGyroDataArray[0].X |= (uint16(tmp[index+5]) << 8)
+			fdb.Gyro.RawGyroDataArray[0].Y = uint16(tmp[index+6])
+			fdb.Gyro.RawGyroDataArray[0].Y |= (uint16(tmp[index+7]) << 8)
+			fdb.Gyro.RawGyroDataArray[0].Z = uint16(tmp[index+8])
+			fdb.Gyro.RawGyroDataArray[0].Z |= (uint16(tmp[index+9]) << 8)
+			fdb.Gyro.RawGyroDataArray[1].X = uint16(tmp[index+10])
+			fdb.Gyro.RawGyroDataArray[1].X |= (uint16(tmp[index+11]) << 8)
+			fdb.Gyro.RawGyroDataArray[1].Y = uint16(tmp[index+12])
+			fdb.Gyro.RawGyroDataArray[1].Y |= (uint16(tmp[index+13]) << 8)
+			fdb.Gyro.RawGyroDataArray[1].Z = uint16(tmp[index+14])
+			fdb.Gyro.RawGyroDataArray[1].Z |= (uint16(tmp[index+15]) << 8)
+
+			if tmp[index+1] == constant.SizeRawDataOf3AxisGyroA {
+				index = index + constant.SizeRawDataOf3AxisGyroA + 2
+			} else if tmp[index+1] == constant.SizeRawDataOf3AxisGyroB {
+				fdb.Gyro.RawGyroDataArray[2].X = uint16(tmp[index+16])
+				fdb.Gyro.RawGyroDataArray[2].X |= (uint16(tmp[index+17]) << 8)
+				fdb.Gyro.RawGyroDataArray[2].Y = uint16(tmp[index+18])
+				fdb.Gyro.RawGyroDataArray[2].Y |= (uint16(tmp[index+19]) << 8)
+				fdb.Gyro.RawGyroDataArray[2].Z = uint16(tmp[index+20])
+				fdb.Gyro.RawGyroDataArray[2].Z |= (uint16(tmp[index+21]) << 8)
+				index = index + constant.SizeRawDataOf3AxisGyroB + 2
+			}
+
 		case constant.IDGeneralPurposeInput:
 			fdb.AvailableContent |= (1 << constant.IDGeneralPurposeInput)
 			fdb.GeneralPurposeInput.DigitalInput = uint16(tmp[index+2])

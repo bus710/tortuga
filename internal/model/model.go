@@ -87,9 +87,9 @@ type FirmwareVersion struct {
 
 // Gyro ...
 type Gyro struct {
-	FrameID                byte
-	RawGyroDataArrayLength byte
-	RawGyroDataArray       [3]RawGyroData
+	FrameID            byte
+	FollowedDataLength byte
+	RawGyroDataArray   [3]RawGyroData
 }
 
 // RawGyroData ...

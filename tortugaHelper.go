@@ -174,7 +174,7 @@ func (c *Connection) formatFeedback(start, end uint16) {
 		switch tmp[index] {
 		case constant.IDBasicSensorData:
 			{
-				fdb.AvailableContent = (1 << constant.IDBasicSensorData)
+				fdb.AvailableContent |= (1 << constant.IDBasicSensorData)
 				fdb.BasicSensorData.TimeStamp = uint16(tmp[index+2])
 				fdb.BasicSensorData.TimeStamp |= (uint16(tmp[index+3]) << 8)
 				fdb.BasicSensorData.Bumper = tmp[index+4]
@@ -190,13 +190,24 @@ func (c *Connection) formatFeedback(start, end uint16) {
 				fdb.BasicSensorData.Charger = tmp[index+14]
 				fdb.BasicSensorData.Battery = tmp[index+15]
 				fdb.BasicSensorData.OvercurrentFlags = tmp[index+16]
-				index += 17
+				index = index + constant.SizeBasicSensorData + 2
 			}
 		case constant.IDDockingIR:
 			{
+				fdb.AvailableContent |= (1 << constant.IDDockingIR)
+				fdb.DockingIR.RightSignal = tmp[index+2]
+				fdb.DockingIR.CentralSignal = tmp[index+3]
+				fdb.DockingIR.LeftSignal = tmp[index+4]
+				index = index + constant.SizeDockingIR + 2
 			}
 		case constant.IDInertialSensor:
 			{
+				fdb.AvailableContent |= (1 << constant.IDInertialSensor)
+				fdb.InertialSensor.Angle = uint16(tmp[index+2])
+				fdb.InertialSensor.Angle |= (uint16(tmp[index+3]) << 8)
+				fdb.InertialSensor.AngleRate = uint16(tmp[index+4])
+				fdb.InertialSensor.AngleRate |= (uint16(tmp[index+5]) << 8)
+				index = index + constant.SizeInertialSensor + 2
 			}
 		case constant.IDCliff:
 			{

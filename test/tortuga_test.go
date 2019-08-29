@@ -55,5 +55,5 @@ func Test(t *testing.T) {
 	log.Println("Bye!")
 }
 
-func (t *testHelper) handler(packet model.Packet) {
+func (t *testHelper) handler(feedback model.Feedback) {
 }

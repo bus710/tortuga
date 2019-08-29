@@ -15,7 +15,7 @@ import (
 // Connection defines the internal variables
 type Connection struct {
 	wait    *sync.WaitGroup
-	handler func(packet model.Packet)
+	handler func(feedback model.Feedback)
 	devName string
 
 	chanStop    chan bool
@@ -34,7 +34,7 @@ type Connection struct {
 
 // Init this checks available ports and opens one if exists
 func (c *Connection) Init(
-	wait *sync.WaitGroup, handler func(packet model.Packet), devName string) (err error) {
+	wait *sync.WaitGroup, handler func(feedback model.Feedback), devName string) (err error) {
 
 	c.wait = wait
 	c.handler = handler

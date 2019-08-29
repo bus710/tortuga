@@ -10,5 +10,5 @@ type Command struct {
 	CRC     byte
 }
 
-// Packet can be used as a parsed data stream
-type Packet struct{}
+// Freedback can be used as a parsed data stream
+type Feedback struct{}

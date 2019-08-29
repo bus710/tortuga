@@ -172,7 +172,7 @@ func (c *Connection) formatFeedback(start, end uint16) {
 	fdb.TimeStamp = time.Now()
 
 	for {
-		if index > uint16(totalLength) {
+		if index >= uint16(totalLength) {
 			break
 		}
 
@@ -318,4 +318,11 @@ func (c *Connection) formatFeedback(start, end uint16) {
 	if fdb.AvailableContent != 0 {
 		c.handler(fdb)
 	}
+}
+
+// TestHelper ...
+// Don't know why cannot call the unexported function (formatFeedback) from the test
+func (c *Connection) TestHelper(start, end uint16, buf []byte) {
+	c.buf = buf
+	c.formatFeedback(start, end)
 }

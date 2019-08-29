@@ -312,4 +312,10 @@ func (c *Connection) formatFeedback(start, end uint16) {
 			fdb.AvailableContent = 0
 		}
 	}
+
+	// There is no error found
+	// Call the given handler function with the parsed feedback data
+	if fdb.AvailableContent != 0 {
+		c.handler(fdb)
+	}
 }

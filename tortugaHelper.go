@@ -163,80 +163,128 @@ func (c *Connection) formatFeedback(start, end uint16) {
 	// Row data
 	// log.Printf("%d, %d - %x \n", start, end, c.buf[start:end])
 
+	totalLength := c.buf[start+2]
 	tmp := c.buf[3:end] // ignore the preambles and the total length
 	fdb := model.Feedback{}
-
-	fdb.TimeStamp = time.Now()
-	fdb.AvailableContent = (1 << constant.IDTimeStamp)
 	index := uint16(0)
 
+	fdb.AvailableContent = (1 << constant.IDTimeStamp)
+	fdb.TimeStamp = time.Now()
+
 	for {
+		if index > uint16(totalLength) {
+			break
+		}
+
 		switch tmp[index] {
 		case constant.IDBasicSensorData:
-			{
-				fdb.AvailableContent |= (1 << constant.IDBasicSensorData)
-				fdb.BasicSensorData.TimeStamp = uint16(tmp[index+2])
-				fdb.BasicSensorData.TimeStamp |= (uint16(tmp[index+3]) << 8)
-				fdb.BasicSensorData.Bumper = tmp[index+4]
-				fdb.BasicSensorData.WheelDrop = tmp[index+5]
-				fdb.BasicSensorData.Cliff = tmp[index+6]
-				fdb.BasicSensorData.LeftEncoder = uint16(tmp[index+7])
-				fdb.BasicSensorData.LeftEncoder |= (uint16(tmp[index+8]) << 8)
-				fdb.BasicSensorData.RightEncoder = uint16(tmp[index+9])
-				fdb.BasicSensorData.RightEncoder |= (uint16(tmp[index+10]) << 8)
-				fdb.BasicSensorData.LeftPWM = tmp[index+11]
-				fdb.BasicSensorData.RightPWM = tmp[index+12]
-				fdb.BasicSensorData.Button = tmp[index+13]
-				fdb.BasicSensorData.Charger = tmp[index+14]
-				fdb.BasicSensorData.Battery = tmp[index+15]
-				fdb.BasicSensorData.OvercurrentFlags = tmp[index+16]
-				index = index + constant.SizeBasicSensorData + 2
-			}
+			fdb.AvailableContent |= (1 << constant.IDBasicSensorData)
+			fdb.BasicSensorData.TimeStamp = uint16(tmp[index+2])
+			fdb.BasicSensorData.TimeStamp |= (uint16(tmp[index+3]) << 8)
+			fdb.BasicSensorData.Bumper = tmp[index+4]
+			fdb.BasicSensorData.WheelDrop = tmp[index+5]
+			fdb.BasicSensorData.Cliff = tmp[index+6]
+			fdb.BasicSensorData.LeftEncoder = uint16(tmp[index+7])
+			fdb.BasicSensorData.LeftEncoder |= (uint16(tmp[index+8]) << 8)
+			fdb.BasicSensorData.RightEncoder = uint16(tmp[index+9])
+			fdb.BasicSensorData.RightEncoder |= (uint16(tmp[index+10]) << 8)
+			fdb.BasicSensorData.LeftPWM = tmp[index+11]
+			fdb.BasicSensorData.RightPWM = tmp[index+12]
+			fdb.BasicSensorData.Button = tmp[index+13]
+			fdb.BasicSensorData.Charger = tmp[index+14]
+			fdb.BasicSensorData.Battery = tmp[index+15]
+			fdb.BasicSensorData.OvercurrentFlags = tmp[index+16]
+			index = index + constant.SizeBasicSensorData + 2
 		case constant.IDDockingIR:
-			{
-				fdb.AvailableContent |= (1 << constant.IDDockingIR)
-				fdb.DockingIR.RightSignal = tmp[index+2]
-				fdb.DockingIR.CentralSignal = tmp[index+3]
-				fdb.DockingIR.LeftSignal = tmp[index+4]
-				index = index + constant.SizeDockingIR + 2
-			}
+			fdb.AvailableContent |= (1 << constant.IDDockingIR)
+			fdb.DockingIR.RightSignal = tmp[index+2]
+			fdb.DockingIR.CentralSignal = tmp[index+3]
+			fdb.DockingIR.LeftSignal = tmp[index+4]
+			index = index + constant.SizeDockingIR + 2
 		case constant.IDInertialSensor:
-			{
-				fdb.AvailableContent |= (1 << constant.IDInertialSensor)
-				fdb.InertialSensor.Angle = uint16(tmp[index+2])
-				fdb.InertialSensor.Angle |= (uint16(tmp[index+3]) << 8)
-				fdb.InertialSensor.AngleRate = uint16(tmp[index+4])
-				fdb.InertialSensor.AngleRate |= (uint16(tmp[index+5]) << 8)
-				index = index + constant.SizeInertialSensor + 2
-			}
+			fdb.AvailableContent |= (1 << constant.IDInertialSensor)
+			fdb.InertialSensor.Angle = uint16(tmp[index+2])
+			fdb.InertialSensor.Angle |= (uint16(tmp[index+3]) << 8)
+			fdb.InertialSensor.AngleRate = uint16(tmp[index+4])
+			fdb.InertialSensor.AngleRate |= (uint16(tmp[index+5]) << 8)
+			index = index + constant.SizeInertialSensor + 2
 		case constant.IDCliff:
-			{
-			}
+			fdb.AvailableContent |= (1 << constant.IDCliff)
+			fdb.Cliff.RightCliffSensor = uint16(tmp[index+2])
+			fdb.Cliff.RightCliffSensor |= (uint16(tmp[index+3]) << 8)
+			fdb.Cliff.CentralCliffSensor = uint16(tmp[index+4])
+			fdb.Cliff.CentralCliffSensor |= (uint16(tmp[index+5]) << 8)
+			fdb.Cliff.LeftCliffSensor = uint16(tmp[index+6])
+			fdb.Cliff.LeftCliffSensor |= (uint16(tmp[index+7]) << 8)
+			index = index + constant.SizeCliff + 2
 		case constant.IDCurrent:
-			{
-			}
+			fdb.AvailableContent |= (1 << constant.IDCurrent)
+			fdb.Current.LeftMotor = tmp[index+2]
+			fdb.Current.RightMotor = tmp[index+3]
+			index = index + constant.SizeCurrent + 2
 		case constant.IDHardwareVersion:
-			{
-			}
+			fdb.AvailableContent |= (1 << constant.IDHardwareVersion)
+			fdb.HardwareVersion.Patch = tmp[index+2]
+			fdb.HardwareVersion.Minor = tmp[index+3]
+			fdb.HardwareVersion.Major = tmp[index+4]
+			index = index + constant.SizeHardwareVersion + 2
 		case constant.IDFirmwareVersion:
-			{
-			}
+			fdb.AvailableContent |= (1 << constant.IDFirmwareVersion)
+			fdb.FirmwareVersion.Patch = tmp[index+2]
+			fdb.FirmwareVersion.Minor = tmp[index+3]
+			fdb.FirmwareVersion.Major = tmp[index+4]
+			index = index + constant.SizeFirmwareVersion + 2
 		case constant.IDRawDataOf3AxisGyro:
-			{
-			}
+			fdb.AvailableContent |= (1 << constant.IDRawDataOf3AxisGyro)
+
+			// index = index + constant.SizeRawDataOf3AxisGyroA+ 2
+			// index = index + constant.SizeRawDataOf3AxisGyroA+ 2
 		case constant.IDGeneralPurposeInput:
-			{
-			}
+			fdb.AvailableContent |= (1 << constant.IDGeneralPurposeInput)
+			fdb.GeneralPurposeInput.DigitalInput = uint16(tmp[index+2])
+			fdb.GeneralPurposeInput.DigitalInput |= (uint16(tmp[index+3]) << 8)
+			fdb.GeneralPurposeInput.AnalogInputCH0 = uint16(tmp[index+4])
+			fdb.GeneralPurposeInput.AnalogInputCH0 |= (uint16(tmp[index+5]) << 8)
+			fdb.GeneralPurposeInput.AnalogInputCH1 = uint16(tmp[index+6])
+			fdb.GeneralPurposeInput.AnalogInputCH1 |= (uint16(tmp[index+7]) << 8)
+			fdb.GeneralPurposeInput.AnalogInputCH2 = uint16(tmp[index+8])
+			fdb.GeneralPurposeInput.AnalogInputCH2 |= (uint16(tmp[index+9]) << 8)
+			fdb.GeneralPurposeInput.AnalogInputCH3 = uint16(tmp[index+10])
+			fdb.GeneralPurposeInput.AnalogInputCH3 |= (uint16(tmp[index+11]) << 8)
+			index = index + constant.SizeGeneralPurposeInput + 2
 		case constant.IDUniqueDeviceIdentifier:
-			{
-			}
+			fdb.AvailableContent |= (1 << constant.IDUniqueDeviceIdentifier)
+			fdb.UniqueDeviceIdentifier.UDID0 = uint32(tmp[index+2])
+			fdb.UniqueDeviceIdentifier.UDID0 |= (uint32(tmp[index+3]) << 8)
+			fdb.UniqueDeviceIdentifier.UDID0 |= (uint32(tmp[index+4]) << 16)
+			fdb.UniqueDeviceIdentifier.UDID0 |= (uint32(tmp[index+5]) << 24)
+			fdb.UniqueDeviceIdentifier.UDID1 = uint32(tmp[index+6])
+			fdb.UniqueDeviceIdentifier.UDID1 |= (uint32(tmp[index+7]) << 8)
+			fdb.UniqueDeviceIdentifier.UDID1 |= (uint32(tmp[index+8]) << 16)
+			fdb.UniqueDeviceIdentifier.UDID1 |= (uint32(tmp[index+9]) << 24)
+			fdb.UniqueDeviceIdentifier.UDID2 = uint32(tmp[index+10])
+			fdb.UniqueDeviceIdentifier.UDID2 |= (uint32(tmp[index+11]) << 8)
+			fdb.UniqueDeviceIdentifier.UDID2 |= (uint32(tmp[index+12]) << 16)
+			fdb.UniqueDeviceIdentifier.UDID2 |= (uint32(tmp[index+13]) << 24)
+			index = index + constant.SizeUniqueDeviceIdentifier + 2
 		case constant.IDControllerInfo:
-			{
-			}
+			fdb.AvailableContent |= (1 << constant.IDControllerInfo)
+			fdb.ControllerInfo.PGain = uint32(tmp[index+2])
+			fdb.ControllerInfo.PGain = (uint32(tmp[index+3]) << 8)
+			fdb.ControllerInfo.PGain = (uint32(tmp[index+4]) << 16)
+			fdb.ControllerInfo.PGain = (uint32(tmp[index+5]) << 24)
+			fdb.ControllerInfo.IGain = uint32(tmp[index+6])
+			fdb.ControllerInfo.IGain = (uint32(tmp[index+7]) << 8)
+			fdb.ControllerInfo.IGain = (uint32(tmp[index+8]) << 16)
+			fdb.ControllerInfo.IGain = (uint32(tmp[index+9]) << 24)
+			fdb.ControllerInfo.DGain = uint32(tmp[index+10])
+			fdb.ControllerInfo.DGain = (uint32(tmp[index+11]) << 8)
+			fdb.ControllerInfo.DGain = (uint32(tmp[index+12]) << 16)
+			fdb.ControllerInfo.DGain = (uint32(tmp[index+13]) << 24)
+			index = index + constant.SizeControllerInfo + 2
 		default:
-			{
-				log.Println("Check the raw data...")
-			}
+			// log.Println("Check the raw data...")
+			fdb.AvailableContent = 0
 		}
 	}
 }

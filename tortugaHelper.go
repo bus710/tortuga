@@ -136,17 +136,16 @@ func (c *Connection) formatFeedback(start, end int) {
 	// Row data
 	// log.Printf(">> %d, %d - %x \n", start, end, c.buf[start:end])
 
-	tmp := c.buf[start:end] // ignore the preambles and the total length
+	tmp := c.buf[start:end] // To use the part of the entire buffer
 	totalLength := tmp[2]
+	index := int(3) // To ignore the preambles and the total length
 
 	fdb := model.Feedback{}
-	index := uint16(3)
-
 	fdb.AvailableContent = (1 << constant.IDTimeStamp)
 	fdb.TimeStamp = time.Now()
 
 	for {
-		if index >= uint16(totalLength) {
+		if index >= int(totalLength) {
 			break
 		}
 

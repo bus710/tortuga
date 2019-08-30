@@ -90,7 +90,8 @@ func (c *Connection) dividePacket() (err error) {
 
 	for i, start := range c.pLoc {
 
-		// If reach to the end of the slice, quit the loop
+		// If reach to the end of the slice,
+		// quit the loop to avoid the out of range error
 		if i+1 == len(c.pLoc) {
 			break
 		}
@@ -104,12 +105,14 @@ func (c *Connection) dividePacket() (err error) {
 				c.formatFeedback(start, end)
 				c.residue = make([]byte, 0)
 			} else {
-				// Because the leftover bytes don't have a correct CRC byte,
-				// it is most likely incomplete packet.
-				// To have a complete packet,
-				// the leftover should be passed to the next data reading iteration.
-				c.residue = c.buf[start:end]
+				// Should we igmore this bytes because the CRC is not correct? We'll see...
+				// c.residue = c.buf[start:end]
 			}
+		} else if i >= len(c.pLoc) {
+			// Probably this short leftover has more of itself from the next data reading
+			// so that this should be passed to the next.
+			c.residue = c.buf[start:end]
+			break
 		}
 	}
 

@@ -2,7 +2,6 @@ package tortuga
 
 import (
 	"errors"
-	"log"
 	"time"
 
 	constant "github.com/bus710/tortuga/internal/constant"
@@ -65,9 +64,10 @@ func (c *Connection) serialize(cmd model.Command) (data []byte) {
 }
 
 func (c *Connection) mergeResidue() (err error) {
-	c.numRead += len(c.residue)
-	c.buf = append(c.residue, c.buf...)
-
+	if len(c.residue) > 0 {
+		c.numRead += len(c.residue)
+		c.buf = append(c.residue, c.buf...)
+	}
 	return nil
 }
 
@@ -79,7 +79,7 @@ func (c *Connection) searchHeader() (err error) {
 
 	for i := 1; i < c.numRead; i++ {
 		if (c.buf[i-1] == 0xaa) && (c.buf[i] == 0x55) {
-			c.pLoc = append(c.pLoc, i)
+			c.pLoc = append(c.pLoc, i-1)
 		}
 	}
 
@@ -96,9 +96,9 @@ func (c *Connection) dividePacket() (err error) {
 
 		end := c.pLoc[i+1]
 
-		if end != 0 {
+		if (end - start) > 70 {
 			if c.checkCRC(start, end) {
-				log.Println(c.pLoc, i, start, end, c.buf[start:end])
+				// log.Println(c.pLoc, i, start, end)
 				c.formatFeedback(start, end)
 				c.residue = make([]byte, 0)
 			} else {
@@ -118,9 +118,6 @@ func (c *Connection) checkCRC(start, end int) bool {
 
 	crc := c.buf[start+2]
 	for i := start + 3; i < end-1; i++ {
-		// if uint16(len(c.buf)) < i {
-		// 	log.Println(i)
-		// }
 		crc = crc ^ c.buf[i]
 	}
 
@@ -156,33 +153,21 @@ Compare the row data and parsed */
 func (c *Connection) formatFeedback(start, end int) {
 
 	// Row data
-	log.Printf(">> %d, %d - %x \n", start, end, c.buf[start:end])
+	// log.Printf(">> %d, %d - %x \n", start, end, c.buf[start:end])
 
-	totalLength := byte(0)
-	var tmp []byte
-
-	if c.buf[start] == 0xaa {
-		totalLength = c.buf[start+2]
-		tmp = c.buf[3:end] // ignore the preambles and the total length
-	} else {
-		totalLength = c.buf[start+3]
-		tmp = c.buf[4:end] // ignore the preambles and the total length
-	}
+	tmp := c.buf[start:end] // ignore the preambles and the total length
+	totalLength := tmp[2]
 
 	fdb := model.Feedback{}
-	index := uint16(0)
+	index := uint16(3)
 
 	fdb.AvailableContent = (1 << constant.IDTimeStamp)
 	fdb.TimeStamp = time.Now()
 
 	for {
-		// time.Sleep(time.Second)
 		if index >= uint16(totalLength) {
 			break
 		}
-
-		// log.Println(index, tmp[index], tmp[index+1])
-		// tmp[2:tmp[index+1]])
 
 		switch tmp[index] {
 		case constant.IDBasicSensorData:

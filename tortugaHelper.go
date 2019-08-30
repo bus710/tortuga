@@ -67,6 +67,7 @@ func (c *Connection) mergeResidue() (err error) {
 	if len(c.residue) > 0 {
 		c.numRead += len(c.residue)
 		c.buf = append(c.residue, c.buf...)
+		c.residue = nil
 	}
 	return nil
 }
@@ -93,6 +94,7 @@ func (c *Connection) dividePacket() (err error) {
 		// If reach to the end of the slice,
 		// quit the loop to avoid the out of range error
 		if i+1 == len(c.pLoc) {
+			c.residue = c.buf[start:]
 			break
 		}
 
@@ -108,11 +110,6 @@ func (c *Connection) dividePacket() (err error) {
 				// Should we igmore this bytes because the CRC is not correct? We'll see...
 				// c.residue = c.buf[start:end]
 			}
-		} else if i >= len(c.pLoc) {
-			// Probably this short leftover has more of itself from the next data reading
-			// so that this should be passed to the next.
-			c.residue = c.buf[start:end]
-			break
 		}
 	}
 

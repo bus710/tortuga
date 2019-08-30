@@ -26,8 +26,8 @@ type Connection struct {
 
 	numRead int
 	buf     []byte
-	pLoc    []uint16 // Pleamble Location
-	residue []byte   // Used if there is a leftover bytes after parsing
+	pLoc    []int  // Pleamble Location
+	residue []byte // Used if there is a leftover bytes after parsing
 
 	errCount int
 }

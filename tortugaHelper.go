@@ -74,20 +74,14 @@ func (c *Connection) mergeResidue() (err error) {
 func (c *Connection) searchHeader() (err error) {
 
 	/* Preamble Location */
-	c.pLoc = make([]uint16, 0)
+	c.pLoc = make([]int, 0)
 	c.pLoc = append(c.pLoc, 0)
 
-	for i := uint16(0); i < uint16(c.numRead); i++ {
-		if i < uint16(len(c.buf)) {
-			if c.buf[i] == 0xaa && c.buf[i+1] == 0x55 {
-				c.pLoc = append(c.pLoc, i)
-				i += 80
-			}
+	for i := 1; i < c.numRead; i++ {
+		if (c.buf[i-1] == 0xaa) && (c.buf[i] == 0x55) {
+			c.pLoc = append(c.pLoc, i)
 		}
 	}
-
-	c.pLoc = append(c.pLoc, uint16(c.numRead+1))
-	c.pLoc = append(c.pLoc, 0)
 
 	return nil
 }
@@ -104,6 +98,7 @@ func (c *Connection) dividePacket() (err error) {
 
 		if end != 0 {
 			if c.checkCRC(start, end) {
+				log.Println(c.pLoc, i, start, end, c.buf[start:end])
 				c.formatFeedback(start, end)
 				c.residue = make([]byte, 0)
 			} else {
@@ -119,13 +114,13 @@ func (c *Connection) dividePacket() (err error) {
 	return nil
 }
 
-func (c *Connection) checkCRC(start, end uint16) bool {
+func (c *Connection) checkCRC(start, end int) bool {
 
 	crc := c.buf[start+2]
 	for i := start + 3; i < end-1; i++ {
-		if uint16(len(c.buf)) < i {
-			log.Println(i)
-		}
+		// if uint16(len(c.buf)) < i {
+		// 	log.Println(i)
+		// }
 		crc = crc ^ c.buf[i]
 	}
 
@@ -158,13 +153,22 @@ func (c *Connection) checkCRC(start, end uint16) bool {
 
 Compare the row data and parsed */
 
-func (c *Connection) formatFeedback(start, end uint16) {
+func (c *Connection) formatFeedback(start, end int) {
 
 	// Row data
-	// log.Printf("%d, %d - %x \n", start, end, c.buf[start:end])
+	log.Printf(">> %d, %d - %x \n", start, end, c.buf[start:end])
 
-	totalLength := c.buf[start+2]
-	tmp := c.buf[3:end] // ignore the preambles and the total length
+	totalLength := byte(0)
+	var tmp []byte
+
+	if c.buf[start] == 0xaa {
+		totalLength = c.buf[start+2]
+		tmp = c.buf[3:end] // ignore the preambles and the total length
+	} else {
+		totalLength = c.buf[start+3]
+		tmp = c.buf[4:end] // ignore the preambles and the total length
+	}
+
 	fdb := model.Feedback{}
 	index := uint16(0)
 
@@ -172,9 +176,13 @@ func (c *Connection) formatFeedback(start, end uint16) {
 	fdb.TimeStamp = time.Now()
 
 	for {
+		// time.Sleep(time.Second)
 		if index >= uint16(totalLength) {
 			break
 		}
+
+		// log.Println(index, tmp[index], tmp[index+1])
+		// tmp[2:tmp[index+1]])
 
 		switch tmp[index] {
 		case constant.IDBasicSensorData:
@@ -322,7 +330,7 @@ func (c *Connection) formatFeedback(start, end uint16) {
 
 // TestHelper ...
 // Don't know why cannot call the unexported function (formatFeedback) from the test
-func (c *Connection) TestHelper(start, end uint16, buf []byte) {
+func (c *Connection) TestHelper(start, end int, buf []byte) {
 	c.buf = buf
 	c.formatFeedback(start, end)
 }

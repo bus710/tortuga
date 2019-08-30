@@ -16,6 +16,7 @@ type testHelper struct {
 	conn tortuga.Connection
 }
 
+// go test -v -run Test_formatFeedback
 func Test_formatFeedback(t *testing.T) {
 
 	log.Println("Hello!")
@@ -27,17 +28,18 @@ func Test_formatFeedback(t *testing.T) {
 	tHelper.conn.Init(&waitInstance, tHelper.handler, "ttyUSB0")
 
 	decoded, _ := hex.DecodeString("aa554d010f90f1000000ed2b58470d0d00129f00030300000004073c1dfcff0000000506f506f9079006060201010d0e8106a1ff0800c8ff90ff0300cfff10100f00dc0fe00fe00fe00fef0f00000000a100")
-	tHelper.conn.TestHelper(0, uint16(len(decoded)), decoded)
+	tHelper.conn.TestHelper(0, int(len(decoded)), decoded)
 
 	decoded, _ = hex.DecodeString("aa554d010fa4f1000000f42b60470d0d00129f00030300000004073d1d21000000000506ec06f5079306060201010d0e830691ff0b00ddff9dff2000f5ff10100f00d90fdf0fdb0fdf0fef0f000000008f")
-	tHelper.conn.TestHelper(0, uint16(len(decoded)), decoded)
+	tHelper.conn.TestHelper(0, int(len(decoded)), decoded)
 
 	decoded, _ = hex.DecodeString("aa554d010fb8f1000000fc2b67470d0d00129f00030300000004073e1d4f000000000506e406f4079406060201010d0e8506a5ff34001200a3ff39002b0010100f00dc0fe40fdb0fdd0ff00f00000000e7")
-	tHelper.conn.TestHelper(0, uint16(len(decoded)), decoded)
+	tHelper.conn.TestHelper(0, int(len(decoded)), decoded)
 	log.Println("Bye")
 }
 
-func Test(t *testing.T) {
+// go test -v -run Test_Run
+func Test_Run(t *testing.T) {
 
 	log.Println("Hello!")
 

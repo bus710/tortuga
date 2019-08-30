@@ -90,10 +90,12 @@ func (c *Connection) dividePacket() (err error) {
 
 	for i, start := range c.pLoc {
 
+		// If reach to the end of the slice, quit the loop
 		if i+1 == len(c.pLoc) {
 			break
 		}
 
+		// end must be the byte right before of the next start byte
 		end := c.pLoc[i+1]
 
 		if (end - start) > 70 {
@@ -128,28 +130,7 @@ func (c *Connection) checkCRC(start, end int) bool {
 	return false
 }
 
-/* Feedback Example
-- Row data:
-	aa554d010f90f1000000ed2b58470d0d00129f000303000000
-	04073c1dfcff0000000506f506f907900606020101
-	0d0e8106a1ff0800c8ff90ff0300cfff
-	10100f00dc0fe00fe00fe00fef0f00000000a100
-
-- Preambles: aa55
-- Total length: 4d
-- Basic Sensor Data: 01 0f 90f1 00 00 00 ed2b 5847 0d 0d 00 12 9f 00
-- Docking IR: 03 03 00 00 00
-- Inertial Sensor: 04 07 3c1d fcff 00 00 00
-- Cliff: 05 06 f506 f907 9006
-- Current: 06 02 0101
-- Hardware version: not requested
-- Firmware version: not requested
-- Gyro: 0d 0e 81 06 a1ff 0800 c8ff 90ff 0300 cfff
-- General purpose input: 10 10 0f00 dc0f e00f e00f e00f ef0f 0000 0000
-- CRC and an empty byte: a1 00
-
-Compare the row data and parsed */
-
+// Please check the feedback sample attached at the bottom of this file.
 func (c *Connection) formatFeedback(start, end int) {
 
 	// Row data
@@ -319,3 +300,25 @@ func (c *Connection) TestHelper(start, end int, buf []byte) {
 	c.buf = buf
 	c.formatFeedback(start, end)
 }
+
+/* Feedback Example
+- Row data:
+	aa554d010f90f1000000ed2b58470d0d00129f000303000000
+	04073c1dfcff0000000506f506f907900606020101
+	0d0e8106a1ff0800c8ff90ff0300cfff
+	10100f00dc0fe00fe00fe00fef0f00000000a100
+
+- Preambles: aa55
+- Total length: 4d
+- Basic Sensor Data: 01 0f 90f1 00 00 00 ed2b 5847 0d 0d 00 12 9f 00
+- Docking IR: 03 03 00 00 00
+- Inertial Sensor: 04 07 3c1d fcff 00 00 00
+- Cliff: 05 06 f506 f907 9006
+- Current: 06 02 0101
+- Hardware version: not requested
+- Firmware version: not requested
+- Gyro: 0d 0e 81 06 a1ff 0800 c8ff 90ff 0300 cfff
+- General purpose input: 10 10 0f00 dc0f e00f e00f e00f ef0f 0000 0000
+- CRC and an empty byte: a1 00
+
+Compare the row data and parsed */

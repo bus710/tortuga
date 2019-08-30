@@ -11,5 +11,7 @@ $ webdev serve
 - https://dart.dev/tools/webdev
 
 ```
-$ webdev build --output web:build
+$ webdev build --output build
 ```
+
+Deploy the directory ./build/web without packages.

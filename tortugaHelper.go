@@ -107,8 +107,8 @@ func (c *Connection) dividePacket() (err error) {
 				c.formatFeedback(start, end)
 				c.residue = make([]byte, 0)
 			} else {
-				// Should we igmore this bytes because the CRC is not correct? We'll see...
-				c.residue = c.buf[start:end]
+				// Should we ignore this bytes because the CRC is not correct? We'll see...
+				// c.residue = c.buf[start:end]
 			}
 		}
 	}

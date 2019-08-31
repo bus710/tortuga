@@ -151,8 +151,12 @@ func (c *Connection) formatFeedback(start, end int) {
 	fdb.AvailableContent = (1 << constant.IDTimeStamp)
 	fdb.TimeStamp = time.Now()
 
+	count := 0
+
 	for {
-		if index >= int(totalLength) {
+
+		count++
+		if index >= int(totalLength) || count > 20 {
 			break
 		}
 

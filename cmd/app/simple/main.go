@@ -31,12 +31,13 @@ func main() {
 	waitInstance.Add(1)
 	go app.conn.Run()
 
-	for {
+	for i := 0; i < 100; i++ {
 		app.conn.Send(command.BaseControlCommand(100, 0))
 		time.Sleep(time.Millisecond * 100)
 	}
 
 	app.conn.Send(command.BaseControlCommand(0, 0))
+	time.Sleep(time.Second)
 
 	app.conn.Stop()
 

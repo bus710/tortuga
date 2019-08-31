@@ -154,7 +154,6 @@ func (c *Connection) formatFeedback(start, end int) {
 	exitCount := 0
 
 	for {
-
 		exitCount++
 		if index >= int(totalLength) || exitCount > 20 {
 			break

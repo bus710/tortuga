@@ -94,7 +94,7 @@ func (c *Connection) dividePacket() (err error) {
 		// If reach to the end of the slice,
 		// quit the loop to avoid the out of range error
 		if i+1 == len(c.pLoc) {
-			// c.residue = c.buf[start:]
+			c.residue = c.buf[start:]
 			break
 		}
 
@@ -105,7 +105,7 @@ func (c *Connection) dividePacket() (err error) {
 			if c.checkCRC(start, end) {
 				// log.Println(c.pLoc, i, start, end)
 				c.formatFeedback(start, end)
-				c.residue = make([]byte, 0)
+				// c.residue = make([]byte, 0)
 			} else {
 				// Should we ignore this bytes because the CRC is not correct? We'll see...
 				// c.residue = c.buf[start:end]

@@ -65,8 +65,9 @@ func (c *Connection) serialize(cmd model.Command) (data []byte) {
 
 func (c *Connection) mergeResidue() (err error) {
 	if c.residue != nil {
+		// c.buf = append(c.residue, c.buf...)
+		c.buf = append(c.residue, c.buf[0:c.numRead]...)
 		c.numRead += len(c.residue)
-		c.buf = append(c.residue, c.buf...)
 		c.residue = nil
 	}
 	return nil

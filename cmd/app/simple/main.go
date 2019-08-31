@@ -31,13 +31,21 @@ func main() {
 	waitInstance.Add(1)
 	go app.conn.Run()
 
-	for i := 0; i < 100; i++ {
-		app.conn.Send(command.BaseControlCommand(10, 0))
-		time.Sleep(time.Millisecond * 33)
+	log.Println("Onward")
+	for i := 0; i < 50; i++ {
+		app.conn.Send(command.BaseControlCommand(50, 0))
+		time.Sleep(time.Millisecond * 100)
 	}
 
+	log.Println("Stop")
 	app.conn.Send(command.BaseControlCommand(0, 0))
 	time.Sleep(time.Second)
+
+	log.Println("Backward")
+	for i := 0; i < 50; i++ {
+		app.conn.Send(command.BaseControlCommand(-50, 0))
+		time.Sleep(time.Millisecond * 100)
+	}
 
 	app.conn.Stop()
 

@@ -32,8 +32,8 @@ func main() {
 	go app.conn.Run()
 
 	for i := 0; i < 100; i++ {
-		app.conn.Send(command.BaseControlCommand(100, 0))
-		time.Sleep(time.Millisecond * 100)
+		app.conn.Send(command.BaseControlCommand(10, 0))
+		time.Sleep(time.Millisecond * 33)
 	}
 
 	app.conn.Send(command.BaseControlCommand(0, 0))

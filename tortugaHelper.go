@@ -89,6 +89,10 @@ func (c *Connection) searchHeader() (err error) {
 
 func (c *Connection) dividePacket() (err error) {
 
+	if len(c.pLoc) < 2 {
+		return
+	}
+
 	for i, start := range c.pLoc {
 
 		// If reach to the end of the slice,
@@ -96,6 +100,8 @@ func (c *Connection) dividePacket() (err error) {
 		if i+1 == len(c.pLoc) {
 			c.residue = c.buf[start:]
 			break
+		} else {
+			c.residue = nil
 		}
 
 		// end must be the byte right before of the next start byte

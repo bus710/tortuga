@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"math"
 	"sync"
 	"time"
 
@@ -31,35 +32,9 @@ func main() {
 	waitInstance.Add(1)
 	go app.conn.Run()
 
-	j := int16(0)
-
 	for {
-		j = 0
-		log.Println("Onward: 0 => 100")
-		for i := 0; i < 50; i++ {
-			j += 2
-			app.conn.Send(command.BaseControlCommand(j, 0))
-			time.Sleep(time.Millisecond * 100)
-		}
-
-		log.Println("Onward: 100 => 0")
-		for i := 0; i < 50; i++ {
-			j -= 2
-			app.conn.Send(command.BaseControlCommand(j, 0))
-			time.Sleep(time.Millisecond * 100)
-		}
-
-		j = 0
-		log.Println("Backward: 0 => -100")
-		for i := 0; i < 50; i++ {
-			j -= 2
-			app.conn.Send(command.BaseControlCommand(j, 0))
-			time.Sleep(time.Millisecond * 100)
-		}
-
-		log.Println("Backward: -100 => 0")
-		for i := 0; i < 50; i++ {
-			j += 2
+		for i := 0.0; i < 6.28; i += 0.04 {
+			j := int16(math.Sin(float64(i)) * 120)
 			app.conn.Send(command.BaseControlCommand(j, 0))
 			time.Sleep(time.Millisecond * 100)
 		}

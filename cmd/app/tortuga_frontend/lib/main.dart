@@ -84,7 +84,7 @@ class _AppState extends State<AppPage> {
           height: maxH / 3,
           child: Center(
             child: Text(
-              'Hello, World!',
+              'Press and drag',
             ),
           ),
         ),
@@ -93,8 +93,8 @@ class _AppState extends State<AppPage> {
           height: padW - 10,
           decoration: BoxDecoration(
             color: Colors.white,
-            border: Border.all(color: Colors.black, width: 1),
-            borderRadius: BorderRadius.all(Radius.circular(3)),
+            border: Border.all(color: Colors.black, width: 10),
+            borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
           child: Stack(
             children: <Widget>[
@@ -111,8 +111,8 @@ class _AppState extends State<AppPage> {
                   print("location: " + widX.toString() + "/" + widY.toString()),
                   x = d.localPosition.dx,
                   y = d.localPosition.dy,
-                  widX = x * -1 + padW - 30,
-                  widY = y,
+                  widX = (x * -1) + padW - 10,
+                  widY = y-100,
                   print("start: " + x.toString() + "/" + y.toString()),
                   setState(() {}),
                 },
@@ -120,8 +120,8 @@ class _AppState extends State<AppPage> {
                   print("location: " + widX.toString() + "/" + widY.toString()),
                   x = d.localPosition.dx,
                   y = d.localPosition.dy,
-                  widX = x * -1 + padW - 30,
-                  widY = y,
+                  widX = (x * -1) + padW - 10,
+                  widY = y-100,
                   print("update: " + x.toString() + "/" + y.toString()),
                   setState(() {}),
                 },

@@ -46,15 +46,31 @@ class AppPage extends StatefulWidget {
 }
 
 class _AppState extends State<AppPage> {
+  // max screen size to calcurate the gesture area
   double maxW;
   double maxH;
 
+  // actual width of the gesture area
   double padW = 0;
+
+  // actual size of the label
   double widX = 0;
   double widY = 0;
 
+  // delta x, y to get the update of dragging
   double x = 0;
   double y = 0;
+
+  // original x, y to store the spot when locked on
+  double originalX = 0;
+  double originalY = 0;
+
+  // dragged x, y to show/send the value
+  double draggedX = 0;
+  double draggedY = 0;
+
+  // message to show
+  String message = "Released";
 
   @override
   Widget build(BuildContext context) {
@@ -83,14 +99,12 @@ class _AppState extends State<AppPage> {
           width: maxW - 10,
           height: maxH / 3,
           child: Center(
-            child: Text(
-              'Press and drag',
-            ),
+            child: _get_dragged_string(),
           ),
         ),
         Container(
-          width: padW - 10,
-          height: padW - 10,
+          width: padW - 30,
+          height: padW - 30,
           decoration: BoxDecoration(
             color: Colors.white,
             border: Border.all(color: Colors.black, width: 10),
@@ -101,10 +115,7 @@ class _AppState extends State<AppPage> {
               Positioned(
                 right: widX,
                 top: widY,
-                child: FlatButton(
-                  child: Text("test"),
-                  onPressed: () => {print("pressed")},
-                ),
+                child: Text(message, style: TextStyle(fontSize: 18)),
               ),
               GestureDetector(
                 onPanStart: (d) => {
@@ -112,8 +123,13 @@ class _AppState extends State<AppPage> {
                   x = d.localPosition.dx,
                   y = d.localPosition.dy,
                   widX = (x * -1) + padW - 10,
-                  widY = y-100,
+                  widY = y - 100,
                   print("start: " + x.toString() + "/" + y.toString()),
+                  message = "Lock on",
+                  originalX = x,
+                  originalY = y,
+                  draggedX = 0,
+                  draggedY = 0,
                   setState(() {}),
                 },
                 onPanUpdate: (d) => {
@@ -121,8 +137,18 @@ class _AppState extends State<AppPage> {
                   x = d.localPosition.dx,
                   y = d.localPosition.dy,
                   widX = (x * -1) + padW - 10,
-                  widY = y-100,
+                  widY = y - 100,
                   print("update: " + x.toString() + "/" + y.toString()),
+                  draggedX = x - originalX,
+                  draggedY = (y - originalY) * -1,
+                  setState(() {}),
+                },
+                onPanEnd: (d) => {
+                  message = "Released",
+                  originalX = 0,
+                  originalY = 0,
+                  draggedX = 0,
+                  draggedY = 0,
                   setState(() {}),
                 },
                 // child:
@@ -132,5 +158,18 @@ class _AppState extends State<AppPage> {
         ),
       ],
     );
+  }
+
+  Widget _get_dragged_string() {
+    if (message == "Lock on") {
+      return Text(
+          "Dragged: " +
+              draggedX.toInt().toString() +
+              " / " +
+              draggedY.toInt().toString(),
+          style: TextStyle(fontSize: 24));
+    } else {
+      return Text("PRESS and DRAG", style: TextStyle(fontSize: 24));
+    }
   }
 }

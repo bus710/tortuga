@@ -6,12 +6,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Tortuga Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         fontFamily: 'OpenSans',
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Tortuga'),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -22,23 +22,51 @@ class MyHomePage extends StatelessWidget {
 
   final String title;
 
+  double maxW;
+  double maxH;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
+        centerTitle: true,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text(
+        child: LayoutBuilder(builder: (context, constraint) {
+          maxW = constraint.maxWidth;
+          maxH = constraint.maxHeight;
+          print(maxW.toString() + " / " + maxH.toString());
+          return _getColumn();
+        }),
+      ),
+    );
+  }
+
+  Widget _getColumn() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Container(
+          width: maxW - 10,
+          height: maxH / 3,
+          child: Center(
+            child: Text(
               'Hello, World!',
             ),
-          ],
+          ),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        Container(
+          width: maxW - 10,
+          height: maxW - 10,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.black, width: 1),
+            borderRadius: BorderRadius.all(Radius.circular(3)),
+          ),
+        ),
+      ],
     );
   }
 }

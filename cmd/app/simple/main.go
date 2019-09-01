@@ -30,29 +30,41 @@ func main() {
 
 	waitInstance.Add(1)
 	go app.conn.Run()
+
+	j := int16(0)
+
 	for {
-		log.Println("Onward")
+		j = 0
+		log.Println("Onward: 0 => 100")
 		for i := 0; i < 50; i++ {
-			app.conn.Send(command.BaseControlCommand(80, 0))
+			j += 2
+			app.conn.Send(command.BaseControlCommand(j, 0))
 			time.Sleep(time.Millisecond * 100)
 		}
 
-		for i := 0; i < 10; i++ {
-			app.conn.Send(command.BaseControlCommand(0, 0))
-			time.Sleep(time.Millisecond * 100)
-		}
-
-		log.Println("Backward")
+		log.Println("Onward: 100 => 0")
 		for i := 0; i < 50; i++ {
-			app.conn.Send(command.BaseControlCommand(-80, 0))
+			j -= 2
+			app.conn.Send(command.BaseControlCommand(j, 0))
 			time.Sleep(time.Millisecond * 100)
 		}
 
-		for i := 0; i < 10; i++ {
-			app.conn.Send(command.BaseControlCommand(0, 0))
+		j = 0
+		log.Println("Backward: 0 => -100")
+		for i := 0; i < 50; i++ {
+			j -= 2
+			app.conn.Send(command.BaseControlCommand(j, 0))
+			time.Sleep(time.Millisecond * 100)
+		}
+
+		log.Println("Backward: -100 => 0")
+		for i := 0; i < 50; i++ {
+			j += 2
+			app.conn.Send(command.BaseControlCommand(j, 0))
 			time.Sleep(time.Millisecond * 100)
 		}
 	}
+
 	app.conn.Stop()
 
 	waitInstance.Wait()

@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bus710/tortuga/cmd/command"
 	model "github.com/bus710/tortuga/internal/model"
 	serial "github.com/tarm/serial"
 )
@@ -133,6 +134,10 @@ loopRun:
 
 // Stop signals to stop the loop
 func (c *Connection) Stop() {
+	for i := 0; i < 10; i++ {
+		c.Send(command.BaseControlCommand(0, 0))
+		time.Sleep(time.Millisecond * 100)
+	}
 	c.chanStop <- true
 }
 

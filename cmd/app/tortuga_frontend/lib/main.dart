@@ -53,9 +53,9 @@ class _AppState extends State<AppPage> {
   // actual width of the gesture area
   double padW = 0;
 
-  // actual size of the label
-  double widX = 0;
-  double widY = 0;
+  // actual location of the label
+  double labelX = 0;
+  double labelY = 0;
 
   // delta x, y to get the update of dragging
   double x = 0;
@@ -113,19 +113,23 @@ class _AppState extends State<AppPage> {
           child: Stack(
             children: <Widget>[
               Positioned(
-                right: widX,
-                top: widY,
+                right: labelX,
+                top: labelY,
                 child: Text(message, style: TextStyle(fontSize: 18)),
               ),
+              _get_original_location(),
               GestureDetector(
                 onPanStart: (d) => {
-                  print("location: " + widX.toString() + "/" + widY.toString()),
+                  print("location: " +
+                      labelX.toString() +
+                      "/" +
+                      labelY.toString()),
                   x = d.localPosition.dx,
                   y = d.localPosition.dy,
-                  widX = (x * -1) + padW - 10,
-                  widY = y - 100,
+                  labelX = (x * -1) + padW - 50,
+                  labelY = y - 50,
                   print("start: " + x.toString() + "/" + y.toString()),
-                  message = "Lock on",
+                  message = "Locked on",
                   originalX = x,
                   originalY = y,
                   draggedX = 0,
@@ -133,11 +137,14 @@ class _AppState extends State<AppPage> {
                   setState(() {}),
                 },
                 onPanUpdate: (d) => {
-                  print("location: " + widX.toString() + "/" + widY.toString()),
+                  print("location: " +
+                      labelX.toString() +
+                      "/" +
+                      labelY.toString()),
                   x = d.localPosition.dx,
                   y = d.localPosition.dy,
-                  widX = (x * -1) + padW - 10,
-                  widY = y - 100,
+                  labelX = (x * -1) + padW - 50,
+                  labelY = y - 50,
                   print("update: " + x.toString() + "/" + y.toString()),
                   draggedX = x - originalX,
                   draggedY = (y - originalY) * -1,
@@ -145,6 +152,8 @@ class _AppState extends State<AppPage> {
                 },
                 onPanEnd: (d) => {
                   message = "Released",
+                  labelX = padW / 2,
+                  labelY = padW / 2,
                   originalX = 0,
                   originalY = 0,
                   draggedX = 0,
@@ -160,8 +169,19 @@ class _AppState extends State<AppPage> {
     );
   }
 
+  Widget _get_original_location() {
+    if (message == "Locked on") {
+      return Positioned(
+          right: (originalX * -1) + padW - 50,
+          top: originalY,
+          child: Icon(Icons.open_with));
+    } else {
+      return Positioned(right: -1000, top: -1000, child: Icon(Icons.open_with));
+    }
+  }
+
   Widget _get_dragged_string() {
-    if (message == "Lock on") {
+    if (message == "Locked on") {
       return Text(
           "Dragged: " +
               draggedX.toInt().toString() +

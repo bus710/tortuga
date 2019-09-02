@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bus710/tortuga/cmd/command"
-	model "github.com/bus710/tortuga/internal/model"
+	command "github.com/bus710/tortuga/cmd/command"
+	model "github.com/bus710/tortuga/cmd/model"
 	serial "github.com/tarm/serial"
 )
 

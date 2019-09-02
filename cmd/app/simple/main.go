@@ -8,7 +8,7 @@ import (
 
 	"github.com/bus710/tortuga"
 	"github.com/bus710/tortuga/cmd/command"
-	"github.com/bus710/tortuga/internal/model"
+	"github.com/bus710/tortuga/cmd/model"
 )
 
 // App to hold/connect variables and methods during the lifecycle

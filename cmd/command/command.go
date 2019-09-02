@@ -1,8 +1,8 @@
 package command
 
 import (
-	constant "github.com/bus710/tortuga/internal/constant"
-	model "github.com/bus710/tortuga/internal/model"
+	constant "github.com/bus710/tortuga/cmd/constant"
+	model "github.com/bus710/tortuga/cmd/model"
 )
 
 // BaseControlCommand moves the body regarding the params

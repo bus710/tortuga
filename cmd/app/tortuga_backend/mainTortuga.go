@@ -31,7 +31,7 @@ func (t *Tortuga) init(app *App) {
 	t.app = app
 	t.conn = tortuga.Connection{}
 	t.chanStop = make(chan bool, 1)
-	t.chanData = make(chan Data, 1)
+	t.chanRequest = make(chan SpeedAngle, 1)
 
 	err := t.conn.Init(&app.waitInstance, t.handler, "ttyUSB0")
 	if err != nil {

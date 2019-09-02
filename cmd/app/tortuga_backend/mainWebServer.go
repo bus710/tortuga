@@ -9,8 +9,8 @@ import (
 
 // Message ...
 type Message struct {
-	Speed int `json:"Speed"`
-	Angle int `json:"Angle"`
+	Speed int16 `json:"Speed"`
+	Angle int16 `json:"Angle"`
 }
 
 type webServer struct {
@@ -43,14 +43,23 @@ func (ws *webServer) socket(wsocket *websocket.Conn) {
 	ws.activeSockets = append(ws.activeSockets, wsocket)
 
 	message := Message{}
+	speedAngle := SpeedAngle{0, 0}
 
+run:
 	for {
 		err := websocket.JSON.Receive(wsocket, message)
 		if err != nil {
 			log.Println("JSON decode error")
 		} else {
 			log.Println(message.Speed, message.Angle)
+			speedAngle.Speed = message.Speed
+			speedAngle.Angle = message.Angle
 		}
+
+		if speedAngle.Speed >= 999 || speedAngle.Angle >= 999 {
+			break run
+		}
+
 	}
 
 	log.Println(wsocket.Request().RemoteAddr)

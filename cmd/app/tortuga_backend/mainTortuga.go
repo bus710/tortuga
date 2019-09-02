@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"math"
 	"time"
 
 	"github.com/bus710/tortuga"
@@ -10,11 +9,21 @@ import (
 	"github.com/bus710/tortuga/cmd/model"
 )
 
+// SpeedAngle ...
+type SpeedAngle struct {
+	Speed int16
+	Angle int16
+}
+
 // Tortuga ...
 type Tortuga struct {
-	app      *App
-	conn     tortuga.Connection
-	chanStop chan bool
+	app         *App
+	conn        tortuga.Connection
+	chanStop    chan bool
+	chanRequest chan SpeedAngle
+	request     SpeedAngle
+	current     SpeedAngle
+	battery     byte
 }
 
 func (t *Tortuga) init(app *App) {
@@ -22,6 +31,7 @@ func (t *Tortuga) init(app *App) {
 	t.app = app
 	t.conn = tortuga.Connection{}
 	t.chanStop = make(chan bool, 1)
+	t.chanData = make(chan Data, 1)
 
 	err := t.conn.Init(&app.waitInstance, t.handler, "ttyUSB0")
 	if err != nil {
@@ -34,17 +44,41 @@ func (t *Tortuga) run() {
 	go t.conn.Run()
 
 	ticker := time.NewTicker(100 * time.Millisecond).C
-	cycle := 0.0
+
 run:
 	for {
 		select {
 		case <-ticker:
-			cycle += 0.04
-			if cycle > 6.28 {
-				cycle = 0.0
+			// Compare the request and current to drive smmothly
+			if t.request.Speed != 0 && t.request.Speed != t.current.Speed {
+				if t.request.Speed > t.current.Speed {
+					diff := t.request.Speed - t.current.Speed
+					if diff > 10 {
+						t.current.Speed += 10
+					} else {
+						t.current.Speed += diff
+					}
+				} else {
+					diff := t.current.Speed - t.request.Speed
+					if diff > 10 {
+						t.current.Speed -= 10
+					} else {
+						t.current.Speed -= diff
+					}
+				}
 			}
-			swing := int16(math.Sin(float64(cycle)) * 120)
-			t.conn.Send(command.BaseControlCommand(swing, 0))
+			if t.request.Speed == 0 && t.current.Speed != 0 {
+				diff := t.current.Speed - 10
+				if diff > 10 {
+					t.current.Speed -= 10
+				} else {
+					t.current.Speed -= diff
+				}
+			}
+			t.conn.Send(command.BaseControlCommand(t.current.Speed, 0))
+
+		case request := <-t.chanRequest:
+			t.request = request
 
 		case <-t.chanStop:
 			t.conn.Stop()
@@ -56,4 +90,5 @@ run:
 }
 
 func (t *Tortuga) handler(fdb model.Feedback) {
+	t.battery = fdb.BasicSensorData.Battery
 }

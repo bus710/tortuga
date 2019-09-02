@@ -22,8 +22,8 @@ func main() {
 	app.tortugaInstance = Tortuga{}
 	app.serverInstance = webServer{}
 
-	app.signalInstance.init(&app)
 	app.tortugaInstance.init(&app)
+	app.signalInstance.init(&app)
 	app.serverInstance.init(&app)
 
 	app.waitInstance.Add(1)

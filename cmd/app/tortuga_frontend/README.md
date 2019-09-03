@@ -4,6 +4,10 @@
 
 ```
 $ webdev serve
+
+or 
+
+$ webdev serve --hostname 0.0.0.0
 ```
 
 ## how to build

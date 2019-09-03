@@ -9,8 +9,10 @@ import (
 
 // Message ...
 type Message struct {
-	Speed int16 `json:"Speed"`
-	Angle int16 `json:"Angle"`
+	OriginalX int16 `json:"OriginalX"`
+	OriginalY int16 `json:"OriginalY"`
+	DraggedX  int16 `json:"DraggedX"`
+	DraggedY  int16 `json:"DraggedY"`
 }
 
 type webServer struct {
@@ -43,7 +45,7 @@ func (ws *webServer) socket(wsocket *websocket.Conn) {
 	ws.activeSockets = append(ws.activeSockets, wsocket)
 
 	message := Message{}
-	speedAngle := SpeedAngle{0, 0}
+	basicControl := BasicControl{0, 0, 0, 0}
 
 run:
 	for {
@@ -51,13 +53,24 @@ run:
 		if err != nil {
 			log.Println("JSON decode error")
 		} else {
-			log.Println(message.Speed, message.Angle)
-			speedAngle.Speed = message.Speed
-			speedAngle.Angle = message.Angle
-		}
+			log.Println(
+				message.OriginalX, message.OriginalY,
+				message.DraggedX, message.DraggedY)
 
-		if speedAngle.Speed >= 999 || speedAngle.Angle >= 999 {
-			break run
+			// Don't go crazy!
+			if basicControl.OriginalX >= 200 ||
+				basicControl.OriginalY >= 200 ||
+				basicControl.DraggedX >= 200 ||
+				basicControl.DraggedY >= 200 {
+				break run
+			}
+
+			basicControl.OriginalX = message.OriginalX
+			basicControl.OriginalY = message.OriginalY
+			basicControl.DraggedX = message.DraggedX
+			basicControl.DraggedY = message.DraggedY
+
+			ws.app.tortugaInstance.chanRequest <- basicControl
 		}
 
 	}

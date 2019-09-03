@@ -1,3 +1,4 @@
+import 'package:flutter_web/gestures.dart';
 import 'package:flutter_web/material.dart';
 import 'package:tortuga_frontend/AppBLoC.dart';
 import 'package:tortuga_frontend/AppEvent.dart';
@@ -82,42 +83,41 @@ class _AppState extends State<AppPage> {
           ),
           child: Stack(
             children: <Widget>[
-              Positioned(
-                right: labelX,
-                top: labelY,
-                child: Text(message, style: TextStyle(fontSize: 18)),
-              ),
-              _get_original_location(),
               GestureDetector(
+                dragStartBehavior: DragStartBehavior.start,
+                // child: Container(
+                //   width: 100,
+                //   height: 100,
+                // ),
                 onPanStart: (d) => {
-                  // print("location: " +
-                  //     labelX.toString() +
-                  //     "/" +
-                  //     labelY.toString()),
                   x = d.localPosition.dx,
                   y = d.localPosition.dy,
                   labelX = (x * -1) + padW - 50,
                   labelY = y - 50,
-                  // print("start: " + x.toString() + "/" + y.toString()),
                   message = "Locked on",
                   originalX = x,
                   originalY = y,
                   draggedX = 0,
                   draggedY = 0,
-                  setState(() {}),
-                },
-                onPanUpdate: (d) => {
                   // print("location: " +
                   //     labelX.toString() +
                   //     "/" +
                   //     labelY.toString()),
+                  // print("start: " + x.toString() + "/" + y.toString()),
+                  setState(() {}),
+                },
+                onPanUpdate: (d) => {
                   x = d.localPosition.dx,
                   y = d.localPosition.dy,
                   labelX = (x * -1) + padW - 50,
                   labelY = y - 50,
-                  // print("update: " + x.toString() + "/" + y.toString()),
                   draggedX = x - originalX,
                   draggedY = (y - originalY) * -1,
+                  // print("location: " +
+                  //     labelX.toString() +
+                  //     "/" +
+                  //     labelY.toString()),
+                  // print("update: " + x.toString() + "/" + y.toString()),
                   setState(() {}),
                 },
                 onPanEnd: (d) => {
@@ -128,10 +128,17 @@ class _AppState extends State<AppPage> {
                   originalY = 0,
                   draggedX = 0,
                   draggedY = 0,
+                  _bloc.backwardSink.add(GestureEvent(0, 0, 0, 0)),
                   setState(() {}),
                 },
                 // child:
               ),
+              Positioned(
+                right: labelX,
+                top: labelY,
+                child: Text(message, style: TextStyle(fontSize: 18)),
+              ),
+              _get_original_location(),
             ],
           ),
         ),
@@ -152,7 +159,8 @@ class _AppState extends State<AppPage> {
 
   Widget _get_dragged_string() {
     if (message == "Locked on") {
-      _bloc.backwardSink.add(GestureEvent(originalX, originalY, draggedX, draggedY));
+      _bloc.backwardSink.add(GestureEvent(originalX.toInt(), originalY.toInt(),
+          draggedX.toInt(), draggedY.toInt()));
 
       return Text(
           "Dragged: " +

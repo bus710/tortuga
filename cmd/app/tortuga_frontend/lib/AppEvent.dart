@@ -1,6 +1,8 @@
 abstract class AppEvent {
-  int Speed;
-  int Angle;
+  int OriginalX;
+  int OriginalY;
+  int DraggedX;
+  int DraggedY;
 }
 
 class GestureEvent extends AppEvent {

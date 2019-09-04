@@ -25,6 +25,8 @@ type Tortuga struct {
 	chanRequest chan BasicControl
 	request     BasicControl
 	current     BasicControl
+	speed       int16
+	angle       int16
 	battery     byte
 }
 
@@ -34,6 +36,9 @@ func (t *Tortuga) init(app *App) {
 	t.conn = tortuga.Connection{}
 	t.chanStop = make(chan bool, 1)
 	t.chanRequest = make(chan BasicControl, 1)
+
+	t.speed = 0
+	t.angle = 0
 
 	err := t.conn.Init(&app.waitInstance, t.handler, "ttyUSB0")
 	if err != nil {
@@ -52,7 +57,7 @@ run:
 		select {
 		case <-ticker:
 			t.calculate()
-			t.conn.Send(command.BaseControlCommand(0, 0))
+			t.conn.Send(command.BaseControlCommand(t.speed, t.angle))
 
 		case request := <-t.chanRequest:
 			t.request = request

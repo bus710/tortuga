@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"math"
 	"net/http"
 
 	"golang.org/x/net/websocket"
@@ -37,9 +38,12 @@ func (ws *webServer) run() {
 func (ws *webServer) socket(wsocket *websocket.Conn) {
 	// https://github.com/bus710/matrix2/blob/master/src/back/mainWebServer.go
 
+	defer wsocket.Close()
+
 	// Don't allow websocket more than one
 	if len(ws.activeSockets) > 0 {
 		ws.activeSockets[0].Close()
+		ws.activeSockets = ws.activeSockets[1:]
 	}
 
 	ws.activeSockets = append(ws.activeSockets, wsocket)
@@ -49,19 +53,20 @@ func (ws *webServer) socket(wsocket *websocket.Conn) {
 
 run:
 	for {
-		err := websocket.JSON.Receive(wsocket, message)
+		err := websocket.JSON.Receive(wsocket, &message)
 		if err != nil {
 			log.Println("JSON decode error")
+			break run
 		} else {
 			log.Println(
 				message.OriginalX, message.OriginalY,
 				message.DraggedX, message.DraggedY)
 
 			// Don't go crazy!
-			if basicControl.OriginalX >= 200 ||
-				basicControl.OriginalY >= 200 ||
-				basicControl.DraggedX >= 200 ||
-				basicControl.DraggedY >= 200 {
+			if math.Abs(float64(basicControl.OriginalX)) >= 600 ||
+				math.Abs(float64(basicControl.OriginalY)) >= 600 ||
+				math.Abs(float64(basicControl.DraggedX)) >= 600 ||
+				math.Abs(float64(basicControl.DraggedY)) >= 600 {
 				break run
 			}
 
@@ -72,7 +77,6 @@ run:
 
 			ws.app.tortugaInstance.chanRequest <- basicControl
 		}
-
 	}
 
 	log.Println(wsocket.Request().RemoteAddr)

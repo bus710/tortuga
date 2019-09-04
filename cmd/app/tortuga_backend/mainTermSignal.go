@@ -28,6 +28,7 @@ func (ts *termSignal) run() {
 	case received := <-ts.sigTerm:
 		log.Println("Receibed a CTRL+C", received)
 		ts.cleanup()
+
 	case <-ts.chanStop:
 		log.Println("Received a signal internally")
 		ts.cleanup()

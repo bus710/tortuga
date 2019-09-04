@@ -36,7 +36,6 @@ func (ws *webServer) run() {
 }
 
 func (ws *webServer) socket(wsocket *websocket.Conn) {
-	// https://github.com/bus710/matrix2/blob/master/src/back/mainWebServer.go
 
 	defer wsocket.Close()
 

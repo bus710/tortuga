@@ -74,7 +74,7 @@ class _AppState extends State<AppPage> {
     buttonDataList.add(ButtonData("3/4", 170, 220, false, this.callback));
     buttonDataList.add(ButtonData("4/4", 220, 220, false, this.callback));
 
-    timer = Timer.periodic(Duration(milliseconds: 300), timerCallback);
+    timer = Timer.periodic(Duration(milliseconds: 500), timerCallback);
     super.initState();
   }
 
@@ -101,15 +101,15 @@ class _AppState extends State<AppPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                _getFeedback(),
-                _getController(),
+                _getTitleInterface(),
+                _getControllerInterface(),
               ]));
     } else {
       return Text("The space available is too small");
     }
   }
 
-  Widget _getFeedback() {
+  Widget _getTitleInterface() {
     double targetH;
 
     if (maxH < 700) {
@@ -131,13 +131,13 @@ class _AppState extends State<AppPage> {
         style: TextStyle(
           fontSize: 48,
           fontWeight: FontWeight.w100,
-          color: Colors.white,
+          color: Colors.grey[200],
         ),
       )),
     );
   }
 
-  Widget _getController() {
+  Widget _getControllerInterface() {
     return Container(
       width: controllerW - 30,
       height: controllerW - 30,
@@ -201,7 +201,7 @@ class ButtonData {
     if (this.state && this.blinkState) {
       stateColor = Colors.orange;
     } else {
-      stateColor = Colors.white;
+      stateColor = Colors.grey[200];
     }
 
     return Positioned(

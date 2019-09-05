@@ -99,11 +99,6 @@ class _AppState extends State<AppPage> {
                   originalY = y,
                   draggedX = 0,
                   draggedY = 0,
-                  // print("location: " +
-                  //     labelX.toString() +
-                  //     "/" +
-                  //     labelY.toString()),
-                  // print("start: " + x.toString() + "/" + y.toString()),
                   setState(() {}),
                 },
                 onPanUpdate: (d) => {
@@ -113,11 +108,6 @@ class _AppState extends State<AppPage> {
                   labelY = y - 50,
                   draggedX = x - originalX,
                   draggedY = (y - originalY) * -1,
-                  // print("location: " +
-                  //     labelX.toString() +
-                  //     "/" +
-                  //     labelY.toString()),
-                  // print("update: " + x.toString() + "/" + y.toString()),
                   setState(() {}),
                 },
                 onPanEnd: (d) => {

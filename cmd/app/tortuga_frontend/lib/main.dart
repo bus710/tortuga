@@ -48,8 +48,9 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Give 1 to remove appBar from the actual screen
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(32),
+        preferredSize: Size.fromHeight(1),
         child: AppBar(
           title: Text(title,
               style: TextStyle(fontWeight: FontWeight.w100, fontSize: 12)),

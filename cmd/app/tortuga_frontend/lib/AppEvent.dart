@@ -1,20 +1,10 @@
 abstract class AppEvent {
-  int OriginalX;
-  int OriginalY;
-  int DraggedX;
-  int DraggedY;
+  String buttonName;
 }
 
-class GestureEvent extends AppEvent {
-  int OriginalX;
-  int OriginalY;
-  int DraggedX;
-  int DraggedY;
-
-  GestureEvent (originalX, originalY, draggedX, draggedY){
-    this.OriginalX = originalX;
-    this.OriginalY = originalY;
-    this.DraggedX = draggedX;
-    this.DraggedY = draggedY;
+class ButtonEvent extends AppEvent {
+  String buttonName;
+  ButtonEvent(String buttonName){
+    this.buttonName = buttonName;
   }
 }

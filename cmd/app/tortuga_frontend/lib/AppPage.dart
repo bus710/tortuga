@@ -42,7 +42,7 @@ class _AppState extends State<AppPage> {
 
   @override
   void initState() {
-    // Init the button state list
+    // Init the button data list
     // First row
     buttonDataList.add(ButtonData("0/0", 20, 20, false, this.callback));
     buttonDataList.add(ButtonData("1/0", 70, 20, false, this.callback));
@@ -58,7 +58,7 @@ class _AppState extends State<AppPage> {
     // Third row
     buttonDataList.add(ButtonData("0/2", 20, 120, false, this.callback));
     buttonDataList.add(ButtonData("1/2", 70, 120, false, this.callback));
-    buttonDataList.add(ButtonData("2/2", 120, 120, false, this.callback));
+    buttonDataList.add(ButtonData("2/2", 120, 120, true, this.callback));
     buttonDataList.add(ButtonData("3/2", 170, 120, false, this.callback));
     buttonDataList.add(ButtonData("4/2", 220, 120, false, this.callback));
     // Fourth row
@@ -169,6 +169,7 @@ class _AppState extends State<AppPage> {
           if (b.name == pressedButtonName) {b.SetState()}
         });
 
+            _bloc.backwardSink.add(ButtonEvent(pressedButtonName));
     setState(() {});
   }
 
@@ -223,8 +224,7 @@ class ButtonData {
             } else {
               this.state = true;
             }
-            // _bloc.backwardSink.add(GestureEvent(0, 0, 0, 0)),
-            print("${name}");
+            // print("${name}");
             this.callback(this.name);
           }),
     );

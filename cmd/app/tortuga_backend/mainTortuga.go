@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"math"
 	"time"
 
 	"github.com/bus710/tortuga"
@@ -12,23 +11,26 @@ import (
 
 // BasicControl ...
 type BasicControl struct {
-	OriginalX int16
-	OriginalY int16
-	DraggedX  int16
-	DraggedY  int16
+	x int
+	y int
 }
 
 // Tortuga ...
 type Tortuga struct {
-	app         *App
-	conn        tortuga.Connection
+	app  *App
+	conn tortuga.Connection
+
 	chanStop    chan bool
 	chanRequest chan BasicControl
-	request     BasicControl
-	current     BasicControl
-	speed       int16
-	angle       int16
-	battery     byte
+
+	timeOverCounter int
+	lut             [5][5][2]int
+	request         BasicControl
+	current         BasicControl
+	speed           int16
+	angle           int16
+
+	battery byte
 }
 
 func (t *Tortuga) init(app *App) {
@@ -38,8 +40,22 @@ func (t *Tortuga) init(app *App) {
 	t.chanStop = make(chan bool, 1)
 	t.chanRequest = make(chan BasicControl, 1)
 
+	t.request = BasicControl{2, 2}
+	t.current = BasicControl{2, 2}
+
 	t.speed = 0
 	t.angle = 0
+
+	t.timeOverCounter = 0
+
+	// https: //www.tutorialspoint.com/go/go_multi_dimensional_arrays.htm
+	t.lut = [5][5][2]int{
+		{{100, 100}, {100, 50}, {100, 0}, {100, -50}, {100, -100}},
+		{{50, 100}, {50, 50}, {50, 0}, {50, -50}, {50, -100}},
+		{{100, 1}, {50, 1}, {0, 0}, {-50, 1}, {-100, 1}},
+		{{-50, 100}, {-50, 50}, {-50, 0}, {-50, -50}, {-50, -100}},
+		{{-100, 100}, {-100, 50}, {-100, 0}, {-100, -50}, {-100, -100}},
+	}
 
 	err := t.conn.Init(&app.waitInstance, t.handler, "ttyUSB0")
 	if err != nil {
@@ -50,18 +66,27 @@ func (t *Tortuga) init(app *App) {
 func (t *Tortuga) run() {
 
 	go t.conn.Run()
-
 	ticker := time.NewTicker(100 * time.Millisecond).C
 
 run:
 	for {
 		select {
 		case <-ticker:
+			// if there is no request for 3 seconds,
+			// the robot should stop
+			t.timeOverCounter++
+			if t.timeOverCounter > 30 {
+				t.timeOverCounter = 0
+				t.request.x = 2
+				t.request.y = 2
+			}
 			t.calculate()
 			t.conn.Send(command.BaseControlCommand(t.speed, t.angle))
 
 		case request := <-t.chanRequest:
 			t.request = request
+			t.timeOverCounter = 0
+			log.Println(t.lut[t.request.y][t.request.x])
 
 		case <-t.chanStop:
 			t.conn.Stop()
@@ -76,102 +101,95 @@ func (t *Tortuga) handler(fdb model.Feedback) {
 	t.battery = fdb.BasicSensorData.Battery
 }
 
+// calculate translates the button coordinates (x, y)
+// to the Kobuki command (speed, angle)
 func (t *Tortuga) calculate() {
 	// http://yujinrobot.github.io/kobuki/enAppendixProtocolSpecification.html
+	speedAngle := t.lut[t.request.y][t.request.x]
+	// t.current.x = speedAngle[0]
+	// t.current.y = speedAngle[1]
+	t.speed = int16(speedAngle[0])
+	t.angle = int16(speedAngle[1])
 
-	// if there is no input, stop the robot but smoothly
-	if t.request.OriginalX == 0 && t.request.OriginalY == 0 &&
-		t.request.DraggedX == 0 && t.request.DraggedY == 0 {
-
-		// if the previous action was the pure rotation
-		if t.current.DraggedX == 1 || t.current.DraggedX == -1 {
-			t.speed = 0
-			t.angle = 0
-			return
-		}
-
-		if t.current.DraggedY > 10 {
-			t.current.DraggedY -= 10
-		} else if t.current.DraggedY < -10 {
-			t.current.DraggedY += 10
-		} else {
-			t.current.DraggedX = 0
-			t.current.DraggedY = 0
-		}
-
-		t.speed = t.current.DraggedY
-		t.angle = 0
-		return
-	}
-
-	// forward/backward calculation
-	if (t.request.DraggedY > 10 || t.request.DraggedY < -10) &&
-		(t.request.DraggedX < 30 && t.request.DraggedX > -30) {
-
-		if t.request.DraggedY != t.current.DraggedY {
-
-			// Calculate a new forward/backward movement value
-			// based on the	difference between the request and current
-			if t.request.DraggedY > t.current.DraggedY {
-				// if the request is further than the current
-				diff := t.request.DraggedY - t.current.DraggedY
-				if diff > 10 {
-					t.current.DraggedY += 10
-				} else {
-					t.current.DraggedY = t.request.DraggedY
-				}
-			} else {
-				if t.request.DraggedY > 0 {
-					// if the request is closer than the current (both are positive)
-					diff := t.current.DraggedY - t.request.DraggedY
-					if diff > 10 {
-						t.current.DraggedY -= 10
-					} else {
-						t.current.DraggedY = t.request.DraggedY
-					}
-				} else {
-					diff := math.Abs(float64(t.request.DraggedY)) - math.Abs(float64(t.current.DraggedY))
-					if diff > 10 {
-						t.current.DraggedY -= 10
-					} else {
-						t.current.DraggedY = t.request.DraggedY
-					}
-				}
-			}
-		}
-		t.speed = t.current.DraggedY
-		t.angle = t.current.DraggedX
-		return
-	}
-
+	//===================================================
+	// // if there is no input, stop the robot but smoothly
+	// if t.request.x == 2 && t.request.y == 2 {
+	// 	// if the previous action was the pure rotation
+	// 	if t.current.DraggedX == 1 || t.current.DraggedX == -1 {
+	// 		t.speed = 0
+	// 		t.angle = 0
+	// 		return
+	// 	}
+	// 	if t.current.DraggedY > 10 {
+	// 		t.current.DraggedY -= 10
+	// 	} else if t.current.DraggedY < -10 {
+	// 		t.current.DraggedY += 10
+	// 	} else {
+	// 		t.current.DraggedX = 0
+	// 		t.current.DraggedY = 0
+	// 	}
+	// 	t.speed = t.current.DraggedY
+	// 	t.angle = 0
+	// 	return
+	// }
+	//===================================================
+	// // forward/backward calculation
+	// if t.request.DraggedY != t.current.DraggedY {
+	// 	// Calculate a new forward/backward movement value
+	// 	// based on the	difference between the request and current
+	// 	if t.request.DraggedY > t.current.DraggedY {
+	// 		// if the request is further than the current
+	// 		diff := t.request.DraggedY - t.current.DraggedY
+	// 		if diff > 10 {
+	// 			t.current.DraggedY += 10
+	// 		} else {
+	// 			t.current.DraggedY = t.request.DraggedY
+	// 		}
+	// 	} else {
+	// 		if t.request.DraggedY > 0 {
+	// 			// if the request is closer than the current (both are positive)
+	// 			diff := t.current.DraggedY - t.request.DraggedY
+	// 			if diff > 10 {
+	// 				t.current.DraggedY -= 10
+	// 			} else {
+	// 				t.current.DraggedY = t.request.DraggedY
+	// 			}
+	// 		} else {
+	// 			diff := math.Abs(float64(t.request.DraggedY)) - math.Abs(float64(t.current.DraggedY))
+	// 			if diff > 10 {
+	// 				t.current.DraggedY -= 10
+	// 			} else {
+	// 				t.current.DraggedY = t.request.DraggedY
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// t.speed = t.current.DraggedY
+	// t.angle = t.current.DraggedX
+	// return
+	//===================================================
 	// pure rotation
-	if (t.request.DraggedY < 10 && t.request.DraggedY > -10) &&
-		(t.request.DraggedX > 30 || t.request.DraggedX < -30) {
-
-		// limiter
-		if t.request.DraggedX > 50 {
-			t.request.DraggedX = 50
-		} else if t.request.DraggedX < -50 {
-			t.request.DraggedX = -50
-		}
-
-		t.current.DraggedX = 1
-		t.current.DraggedY = t.request.DraggedX * -1
-
-		t.speed = t.current.DraggedY
-		t.angle = t.current.DraggedX
-		return
-	}
-
+	// if (t.request.DraggedY < 10 && t.request.DraggedY > -10) &&
+	// 	(t.request.DraggedX > 30 || t.request.DraggedX < -30) {
+	// 	// limiter
+	// 	if t.request.DraggedX > 50 {
+	// 		t.request.DraggedX = 50
+	// 	} else if t.request.DraggedX < -50 {
+	// 		t.request.DraggedX = -50
+	// 	}
+	// 	t.current.DraggedX = 1
+	// 	t.current.DraggedY = t.request.DraggedX * -1
+	// 	t.speed = t.current.DraggedY
+	// 	t.angle = t.current.DraggedX
+	// 	return
+	// }
+	//===================================================
 	// rotationRequest := int16(0)
 	// rotationCurrent := int16(0)
-
 	// if t.request.DraggedX > 0 {
 	// 	rotationRequest = t.request.DraggedY * (t.request.DraggedX + 230/2) / t.request.DraggedX
 	// 	rotationCurrent = t.current.DraggedY * (t.current.DraggedX + 230/2) / t.request.DraggedX
-
 	// 	diff := math.Abs(float64(rotationRequest)) - math.Abs(float64(rotationCurrent))
-
 	// 	if diff > 10 {
 	// 		if rotationRequest > rotationCurrent {
 	// 			rotationCurrent -= 10
@@ -182,7 +200,6 @@ func (t *Tortuga) calculate() {
 	// } else if t.request.DraggedX < 0 {
 	// 	rotationRequest = t.request.DraggedY * (t.request.DraggedX - 230/2) / t.request.DraggedX
 	// 	rotationCurrent = t.current.DraggedY * (t.current.DraggedX - 230/2) / t.current.DraggedX
-
 	// 	diff := math.Abs(float64(rotationRequest)) - math.Abs(float64(rotationCurrent))
 	// 	if diff > 10 {
 	// 		if rotationRequest > rotationCurrent {
@@ -195,8 +212,8 @@ func (t *Tortuga) calculate() {
 	// 	t.current.DraggedX = 0
 	// 	rotationCurrent = 0
 	// }
-
 	// t.speed = t.current.DraggedY
 	// t.angle = rotationCurrent
 	// return
+	//===================================================
 }

@@ -63,7 +63,7 @@ func (t *Tortuga) init(app *App) {
 func (t *Tortuga) run() {
 
 	go t.conn.Run()
-	ticker := time.NewTicker(100 * time.Millisecond).C
+	ticker := time.NewTicker(500 * time.Millisecond).C
 
 run:
 	for {
@@ -77,6 +77,7 @@ run:
 				t.request = BasicControl{"none", "none"}
 			}
 			t.calculate()
+			log.Println(t.request, t.speed, t.angle)
 			// t.conn.Send(command.BaseControlCommand(t.speed, t.angle))
 
 		case request := <-t.chanRequest:
@@ -115,20 +116,72 @@ func (t *Tortuga) calculate() {
 				t.angle += 10
 			}
 		case t.request.forwardBackward == "forward" && t.request.leftRight == "none":
-			speedAngle = t.lut[1][0]
+			speedAngle = t.lut[0][1]
 			if t.speed < int16(speedAngle[0]) {
 				t.speed += 10
 			}
 			t.angle = 0
-
+		case t.request.forwardBackward == "forward" && t.request.leftRight == "right":
+			speedAngle = t.lut[0][2]
+			if t.speed < int16(speedAngle[0]) {
+				t.speed += 10
+			}
+			if t.angle > int16(speedAngle[1]) {
+				t.angle -= 10
+			}
+		case t.request.forwardBackward == "none" && t.request.leftRight == "left":
+			speedAngle = t.lut[1][0]
+			if t.speed < int16(speedAngle[0]) {
+				t.speed += 10
+			}
+			if t.angle < int16(speedAngle[1]) {
+				t.angle = 1
+			}
+		case t.request.forwardBackward == "none" && t.request.leftRight == "none":
+			t.speed = 0
+			t.angle = 0
+		case t.request.forwardBackward == "none" && t.request.leftRight == "right":
+			speedAngle = t.lut[1][2]
+			if t.speed > int16(speedAngle[0]) {
+				t.speed -= 10
+			}
+			if t.angle < int16(speedAngle[1]) {
+				t.angle = 1
+			}
+		case t.request.forwardBackward == "backward" && t.request.leftRight == "left":
+			speedAngle = t.lut[2][0]
+			if t.speed > int16(speedAngle[0]) {
+				t.speed -= 10
+			}
+			if t.angle < int16(speedAngle[1]) {
+				t.angle += 10
+			}
+		case t.request.forwardBackward == "backward" && t.request.leftRight == "none":
+			speedAngle = t.lut[2][1]
+			if t.speed > int16(speedAngle[0]) {
+				t.speed -= 10
+			}
+			t.angle = 0
+		case t.request.forwardBackward == "backward" && t.request.leftRight == "right":
+			speedAngle = t.lut[2][2]
+			if t.speed > int16(speedAngle[0]) {
+				t.speed -= 10
+			}
+			if t.angle > int16(speedAngle[1]) {
+				t.angle -= 10
+			}
+		default:
+			t.speed = 0
+			t.angle = 0
 		}
-
 	} else {
 		// If the current request (request) is not same as the last request sent to the robot,
 		// need to ignore the request for now but decrease the speed to 0 progressively
 		if t.speed == 0 && t.angle == 0 {
-			t.request = t.last
+			t.last = t.request
 		} else {
+			// If the last request stil affects to the robot (speed and angle are not 0),
+			// decrease the params as much as 10 until 0
 			if t.speed > 10 {
 				t.speed -= 10
 			} else if t.speed < -10 {

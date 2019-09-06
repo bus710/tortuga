@@ -97,26 +97,49 @@ func (t *Tortuga) handler(fdb model.Feedback) {
 	t.battery = fdb.BasicSensorData.Battery
 }
 
-// calculate translates the button coordinates (x, y)
-// to the Kobuki command (speed, angle)
+// kind of motion planning
 func (t *Tortuga) calculate() {
 	// http://yujinrobot.github.io/kobuki/enAppendixProtocolSpecification.html
 
 	if t.request == t.last {
 		// If the current request (request) is same as the last request sent to the robot,
 		// don't need to stop or change the angle but increase the speed to the max as LUT progressivly
-		t.request = t.last // not really need
-		// TODO: check the speed and angle with the LUT and increase the speed
+		speedAngle := [2]int{0, 0}
+		switch {
+		case t.request.forwardBackward == "forward" && t.request.leftRight == "left":
+			speedAngle = t.lut[0][0]
+			if t.speed < int16(speedAngle[0]) {
+				t.speed += 10
+			}
+			if t.angle < int16(speedAngle[1]) {
+				t.angle += 10
+			}
+		case t.request.forwardBackward == "forward" && t.request.leftRight == "none":
+			speedAngle = t.lut[1][0]
+			if t.speed < int16(speedAngle[0]) {
+				t.speed += 10
+			}
+			t.angle = 0
+
+		}
+
 	} else {
 		// If the current request (request) is not same as the last request sent to the robot,
 		// need to ignore the request for now but decrease the speed to 0 progressively
 		if t.speed == 0 && t.angle == 0 {
 			t.request = t.last
 		} else {
+			if t.speed > 10 {
+				t.speed -= 10
+			} else if t.speed < -10 {
+				t.speed += 10
+			} else if t.speed == 10 {
+				t.speed = 0
+				t.angle = 0
+			} else if t.speed == -10 {
+				t.speed = 0
+				t.angle = 0
+			}
 		}
 	}
-	// speedAngle := t.lut[t.request.y][t.request.x]
-	// t.speed = int16(speedAngle[0])
-	// t.angle = int16(speedAngle[1])
-
 }

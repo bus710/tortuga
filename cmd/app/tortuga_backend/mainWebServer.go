@@ -2,18 +2,16 @@ package main
 
 import (
 	"log"
-	"math"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"golang.org/x/net/websocket"
 )
 
 // Message ...
 type Message struct {
-	OriginalX int16 `json:"OriginalX"`
-	OriginalY int16 `json:"OriginalY"`
-	DraggedX  int16 `json:"DraggedX"`
-	DraggedY  int16 `json:"DraggedY"`
+	ButtonName string `json:"ButtonName"`
 }
 
 type webServer struct {
@@ -48,7 +46,7 @@ func (ws *webServer) socket(wsocket *websocket.Conn) {
 	ws.activeSockets = append(ws.activeSockets, wsocket)
 
 	message := Message{}
-	basicControl := BasicControl{0, 0, 0, 0}
+	basicControl := BasicControl{2, 2}
 
 run:
 	for {
@@ -57,22 +55,11 @@ run:
 			log.Println("JSON decode error")
 			break run
 		} else {
-			log.Println(
-				message.OriginalX, message.OriginalY,
-				message.DraggedX, message.DraggedY)
 
-			// Don't go crazy!
-			if math.Abs(float64(basicControl.OriginalX)) >= 600 ||
-				math.Abs(float64(basicControl.OriginalY)) >= 600 ||
-				math.Abs(float64(basicControl.DraggedX)) >= 600 ||
-				math.Abs(float64(basicControl.DraggedY)) >= 600 {
-				break run
-			}
-
-			basicControl.OriginalX = message.OriginalX
-			basicControl.OriginalY = message.OriginalY
-			basicControl.DraggedX = message.DraggedX
-			basicControl.DraggedY = message.DraggedY
+			basicControl.x, err = strconv.Atoi(
+				strings.Split(message.ButtonName, "/")[0])
+			basicControl.y, err = strconv.Atoi(
+				strings.Split(message.ButtonName, "/")[1])
 
 			ws.app.tortugaInstance.chanRequest <- basicControl
 		}

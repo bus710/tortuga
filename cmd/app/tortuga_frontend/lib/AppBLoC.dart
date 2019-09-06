@@ -27,9 +27,10 @@ class AppBLoC {
   /* For the websocket comm */
   html.WebSocket socket;
 
-  /* Buffer */
-  int OriginalX, OriginalY;
-  int DraggedX, DraggedY;
+  /* Buffer 
+  1. to keep the data from stream 
+  2. to use it in the timer handler */
+  String buttonName = "2/2";
 
   // constructor
   AppBLoC() {
@@ -54,29 +55,17 @@ class AppBLoC {
   - The websocket.
   - So this is the place to make some action (i.e. marshaling). */
   _frontendHandler(AppEvent event) async {
-    if (event.runtimeType.toString() == "GestureEvent") {
-      // If the gesture is done, send a 0,0,0,0 to stop the robot
-      if (event.OriginalX == 0 &&
-          event.OriginalY == 0 &&
-          event.DraggedX == 0 &&
-          event.DraggedY == 0) {
+    if (event.runtimeType.toString() == "ButtonEvent") {
+      if (event.buttonName.length == 3) {
         if (socket != null && socket.readyState == html.WebSocket.OPEN) {
           socket.send(json.encode({
-            "OriginalX": event.OriginalX,
-            "OriginalY": event.OriginalY,
-            "DraggedX": event.DraggedX,
-            "DraggedY": event.DraggedY,
+            "ButtonName": event.buttonName,
           }));
         } else {
           // print('WebSocket not connected, message data not sent');
         }
       }
-
-      // Store the date from this event for later use
-      OriginalX = event.OriginalX;
-      OriginalY = event.OriginalY;
-      DraggedX = event.DraggedX;
-      DraggedY = event.DraggedY;
+      buttonName = event.buttonName;
     }
   }
 
@@ -84,12 +73,10 @@ class AppBLoC {
     // expired = true;
     if (socket != null && socket.readyState == html.WebSocket.OPEN) {
       socket.send(json.encode({
-        "OriginalX": OriginalX,
-        "OriginalY": OriginalY,
-        "DraggedX": DraggedX,
-        "DraggedY": DraggedY,
+        "ButtonName": buttonName,
       }));
     }
+    print(buttonName);
   }
 
   socketInit() {

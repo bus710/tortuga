@@ -25,7 +25,7 @@ type Tortuga struct {
 	timeOverCounter int
 	lut             [3][3][2]int
 	request         BasicControl
-	current         BasicControl
+	last            BasicControl
 	speed           int16
 	angle           int16
 
@@ -40,7 +40,7 @@ func (t *Tortuga) init(app *App) {
 	t.chanRequest = make(chan BasicControl, 1)
 
 	t.request = BasicControl{"none", "none"}
-	t.current = BasicControl{"none", "none"}
+	t.last = BasicControl{"none", "none"}
 
 	t.speed = 0
 	t.angle = 0
@@ -49,9 +49,9 @@ func (t *Tortuga) init(app *App) {
 
 	// https://www.tutorialspoint.com/go/go_multi_dimensional_arrays.htm
 	t.lut = [3][3][2]int{
-		{{100, 100}, {100, 0}, {100, -100}},
+		{{100, 50}, {100, 0}, {100, -50}},
 		{{100, 1}, {0, 0}, {-100, 1}},
-		{{-100, 100}, {-100, 0}, {-100, -100}},
+		{{-100, 50}, {-100, 0}, {-100, -50}},
 	}
 
 	err := t.conn.Init(&app.waitInstance, t.handler, "ttyUSB0")
@@ -101,113 +101,22 @@ func (t *Tortuga) handler(fdb model.Feedback) {
 // to the Kobuki command (speed, angle)
 func (t *Tortuga) calculate() {
 	// http://yujinrobot.github.io/kobuki/enAppendixProtocolSpecification.html
+
+	if t.request == t.last {
+		// If the current request (request) is same as the last request sent to the robot,
+		// don't need to stop or change the angle but increase the speed to the max as LUT progressivly
+		t.request = t.last // not really need
+		// TODO: check the speed and angle with the LUT and increase the speed
+	} else {
+		// If the current request (request) is not same as the last request sent to the robot,
+		// need to ignore the request for now but decrease the speed to 0 progressively
+		if t.speed == 0 && t.angle == 0 {
+			t.request = t.last
+		} else {
+		}
+	}
 	// speedAngle := t.lut[t.request.y][t.request.x]
 	// t.speed = int16(speedAngle[0])
 	// t.angle = int16(speedAngle[1])
 
-	//===================================================
-	// // if there is no input, stop the robot but smoothly
-	// if t.request.x == 2 && t.request.y == 2 {
-	// 	// if the previous action was the pure rotation
-	// 	if t.current.DraggedX == 1 || t.current.DraggedX == -1 {
-	// 		t.speed = 0
-	// 		t.angle = 0
-	// 		return
-	// 	}
-	// 	if t.current.DraggedY > 10 {
-	// 		t.current.DraggedY -= 10
-	// 	} else if t.current.DraggedY < -10 {
-	// 		t.current.DraggedY += 10
-	// 	} else {
-	// 		t.current.DraggedX = 0
-	// 		t.current.DraggedY = 0
-	// 	}
-	// 	t.speed = t.current.DraggedY
-	// 	t.angle = 0
-	// 	return
-	// }
-	//===================================================
-	// // forward/backward calculation
-	// if t.request.DraggedY != t.current.DraggedY {
-	// 	// Calculate a new forward/backward movement value
-	// 	// based on the	difference between the request and current
-	// 	if t.request.DraggedY > t.current.DraggedY {
-	// 		// if the request is further than the current
-	// 		diff := t.request.DraggedY - t.current.DraggedY
-	// 		if diff > 10 {
-	// 			t.current.DraggedY += 10
-	// 		} else {
-	// 			t.current.DraggedY = t.request.DraggedY
-	// 		}
-	// 	} else {
-	// 		if t.request.DraggedY > 0 {
-	// 			// if the request is closer than the current (both are positive)
-	// 			diff := t.current.DraggedY - t.request.DraggedY
-	// 			if diff > 10 {
-	// 				t.current.DraggedY -= 10
-	// 			} else {
-	// 				t.current.DraggedY = t.request.DraggedY
-	// 			}
-	// 		} else {
-	// 			diff := math.Abs(float64(t.request.DraggedY)) - math.Abs(float64(t.current.DraggedY))
-	// 			if diff > 10 {
-	// 				t.current.DraggedY -= 10
-	// 			} else {
-	// 				t.current.DraggedY = t.request.DraggedY
-	// 			}
-	// 		}
-	// 	}
-	// }
-	// t.speed = t.current.DraggedY
-	// t.angle = t.current.DraggedX
-	// return
-	//===================================================
-	// pure rotation
-	// if (t.request.DraggedY < 10 && t.request.DraggedY > -10) &&
-	// 	(t.request.DraggedX > 30 || t.request.DraggedX < -30) {
-	// 	// limiter
-	// 	if t.request.DraggedX > 50 {
-	// 		t.request.DraggedX = 50
-	// 	} else if t.request.DraggedX < -50 {
-	// 		t.request.DraggedX = -50
-	// 	}
-	// 	t.current.DraggedX = 1
-	// 	t.current.DraggedY = t.request.DraggedX * -1
-	// 	t.speed = t.current.DraggedY
-	// 	t.angle = t.current.DraggedX
-	// 	return
-	// }
-	//===================================================
-	// rotationRequest := int16(0)
-	// rotationCurrent := int16(0)
-	// if t.request.DraggedX > 0 {
-	// 	rotationRequest = t.request.DraggedY * (t.request.DraggedX + 230/2) / t.request.DraggedX
-	// 	rotationCurrent = t.current.DraggedY * (t.current.DraggedX + 230/2) / t.request.DraggedX
-	// 	diff := math.Abs(float64(rotationRequest)) - math.Abs(float64(rotationCurrent))
-	// 	if diff > 10 {
-	// 		if rotationRequest > rotationCurrent {
-	// 			rotationCurrent -= 10
-	// 		} else {
-	// 			rotationCurrent += 10
-	// 		}
-	// 	}
-	// } else if t.request.DraggedX < 0 {
-	// 	rotationRequest = t.request.DraggedY * (t.request.DraggedX - 230/2) / t.request.DraggedX
-	// 	rotationCurrent = t.current.DraggedY * (t.current.DraggedX - 230/2) / t.current.DraggedX
-	// 	diff := math.Abs(float64(rotationRequest)) - math.Abs(float64(rotationCurrent))
-	// 	if diff > 10 {
-	// 		if rotationRequest > rotationCurrent {
-	// 			rotationCurrent += 10
-	// 		} else {
-	// 			rotationCurrent -= 10
-	// 		}
-	// 	}
-	// } else {
-	// 	t.current.DraggedX = 0
-	// 	rotationCurrent = 0
-	// }
-	// t.speed = t.current.DraggedY
-	// t.angle = rotationCurrent
-	// return
-	//===================================================
 }

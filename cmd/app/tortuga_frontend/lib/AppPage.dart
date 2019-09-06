@@ -44,35 +44,24 @@ class _AppState extends State<AppPage> {
   void initState() {
     // Init the button data list
     // First row
-    buttonDataList.add(ButtonData("0/0", 20, 20, false, this.callback));
-    buttonDataList.add(ButtonData("1/0", 70, 20, false, this.callback));
-    buttonDataList.add(ButtonData("2/0", 120, 20, false, this.callback));
-    buttonDataList.add(ButtonData("3/0", 170, 20, false, this.callback));
-    buttonDataList.add(ButtonData("4/0", 220, 20, false, this.callback));
+    buttonDataList
+        .add(ButtonData("forward/left", 20, 20, false, this.callback));
+    buttonDataList
+        .add(ButtonData("forward/none", 110, 20, false, this.callback));
+    buttonDataList
+        .add(ButtonData("forward/right", 200, 20, false, this.callback));
     // Second row
-    buttonDataList.add(ButtonData("0/1", 20, 70, false, this.callback));
-    buttonDataList.add(ButtonData("1/1", 70, 70, false, this.callback));
-    buttonDataList.add(ButtonData("2/1", 120, 70, false, this.callback));
-    buttonDataList.add(ButtonData("3/1", 170, 70, false, this.callback));
-    buttonDataList.add(ButtonData("4/1", 220, 70, false, this.callback));
+    buttonDataList.add(ButtonData("none/left", 20, 110, false, this.callback));
+    buttonDataList.add(ButtonData("none/none", 110, 110, true, this.callback));
+    buttonDataList
+        .add(ButtonData("none/right", 200, 110, false, this.callback));
     // Third row
-    buttonDataList.add(ButtonData("0/2", 20, 120, false, this.callback));
-    buttonDataList.add(ButtonData("1/2", 70, 120, false, this.callback));
-    buttonDataList.add(ButtonData("2/2", 120, 120, true, this.callback));
-    buttonDataList.add(ButtonData("3/2", 170, 120, false, this.callback));
-    buttonDataList.add(ButtonData("4/2", 220, 120, false, this.callback));
-    // Fourth row
-    buttonDataList.add(ButtonData("0/3", 20, 170, false, this.callback));
-    buttonDataList.add(ButtonData("1/3", 70, 170, false, this.callback));
-    buttonDataList.add(ButtonData("2/3", 120, 170, false, this.callback));
-    buttonDataList.add(ButtonData("3/3", 170, 170, false, this.callback));
-    buttonDataList.add(ButtonData("4/3", 220, 170, false, this.callback));
-    // Fifth row
-    buttonDataList.add(ButtonData("0/4", 20, 220, false, this.callback));
-    buttonDataList.add(ButtonData("1/4", 70, 220, false, this.callback));
-    buttonDataList.add(ButtonData("2/4", 120, 220, false, this.callback));
-    buttonDataList.add(ButtonData("3/4", 170, 220, false, this.callback));
-    buttonDataList.add(ButtonData("4/4", 220, 220, false, this.callback));
+    buttonDataList
+        .add(ButtonData("backward/left", 20, 200, false, this.callback));
+    buttonDataList
+        .add(ButtonData("backward/none", 110, 200, false, this.callback));
+    buttonDataList
+        .add(ButtonData("backward/right", 200, 200, false, this.callback));
 
     timer = Timer.periodic(Duration(milliseconds: 500), timerCallback);
     super.initState();
@@ -162,18 +151,24 @@ class _AppState extends State<AppPage> {
   }
 
   void callback(String pressedButtonName) {
+    // To the button indicate the color immediately
+    timer.cancel();
+    timer = Timer.periodic(Duration(milliseconds: 500), timerCallback);
+
     // Only the button pressed last time should be set
     // so that this handler clears everyone and sets the last one.
     buttonDataList.forEach((b) => {
           b.ClearState(),
+          b.SetBlinkState(),
           if (b.name == pressedButtonName) {b.SetState()}
         });
+    _bloc.backwardSink.add(ButtonEvent(pressedButtonName));
 
-            _bloc.backwardSink.add(ButtonEvent(pressedButtonName));
     setState(() {});
   }
 
   void timerCallback(Timer timer) async {
+    // To blink the button pressed
     buttonDataList.forEach((b) => {
           b.FlipBlinkState(),
         });
@@ -210,8 +205,8 @@ class ButtonData {
       top: y,
       child: GestureDetector(
           child: Container(
-            width: 40,
-            height: 40,
+            width: 70,
+            height: 70,
             decoration: BoxDecoration(
               color: stateColor,
               border: Border.all(color: stateColor, width: 3),
@@ -240,5 +235,9 @@ class ButtonData {
 
   void FlipBlinkState() {
     this.blinkState = !this.blinkState;
+  }
+
+  void SetBlinkState(){
+    this.blinkState = true;
   }
 }

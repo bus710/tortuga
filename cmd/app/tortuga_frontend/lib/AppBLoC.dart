@@ -30,7 +30,7 @@ class AppBLoC {
   /* Buffer 
   1. to keep the data from stream 
   2. to use it in the timer handler */
-  String buttonName = "2/2";
+  String buttonName = "stop/stop";
 
   // constructor
   AppBLoC() {
@@ -56,14 +56,12 @@ class AppBLoC {
   - So this is the place to make some action (i.e. marshaling). */
   _frontendHandler(AppEvent event) async {
     if (event.runtimeType.toString() == "ButtonEvent") {
-      if (event.buttonName.length == 3) {
-        if (socket != null && socket.readyState == html.WebSocket.OPEN) {
-          socket.send(json.encode({
-            "ButtonName": event.buttonName,
-          }));
-        } else {
-          // print('WebSocket not connected, message data not sent');
-        }
+      if (socket != null && socket.readyState == html.WebSocket.OPEN) {
+        socket.send(json.encode({
+          "ButtonName": event.buttonName,
+        }));
+      } else {
+        // print('WebSocket not connected, message data not sent');
       }
       buttonName = event.buttonName;
     }

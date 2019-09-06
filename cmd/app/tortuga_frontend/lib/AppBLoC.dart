@@ -26,6 +26,7 @@ class AppBLoC {
 
   /* For the websocket comm */
   html.WebSocket socket;
+  String socketState = "inactive";
 
   /* Buffer 
   1. to keep the data from stream 
@@ -74,6 +75,7 @@ class AppBLoC {
         "ButtonName": buttonName,
       }));
     }
+
     print(buttonName);
   }
 
@@ -83,10 +85,14 @@ class AppBLoC {
 
     socket.onOpen.listen((e) {
       print("websocket: opened");
+      forwardSink.add("active");
+      socketState = "active";
     });
 
     socket.onClose.listen((e) {
       print("websocket: closed");
+      forwardSink.add("inactive");
+      socketState = "inactive";
     });
 
     socket.onMessage.listen((e) {

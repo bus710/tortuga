@@ -1,8 +1,5 @@
-import 'package:flutter_web/material.dart';
-import 'package:flutter_web/gestures.dart';
-
 import 'dart:async'; // for streams and timer
-
+import 'package:flutter_web/material.dart';
 import 'package:tortuga_frontend/main.dart';
 import 'package:tortuga_frontend/AppBLoC.dart';
 import 'package:tortuga_frontend/AppEvent.dart';
@@ -20,6 +17,7 @@ class AppPage extends StatefulWidget {
 
 class _AppState extends State<AppPage> {
   final _bloc = AppBLoC();
+  StreamSubscription<String> subscription;
 
   Timer timer;
 
@@ -39,6 +37,7 @@ class _AppState extends State<AppPage> {
 
   Map<String, bool> buttonState = Map<String, bool>();
   List<ButtonData> buttonDataList = List<ButtonData>();
+  Color blinkColor = Colors.black;
 
   @override
   void initState() {
@@ -64,6 +63,14 @@ class _AppState extends State<AppPage> {
         .add(ButtonData("backward/right", 200, 200, false, this.callback));
 
     timer = Timer.periodic(Duration(milliseconds: 500), timerCallback);
+
+    subscription = _bloc.forwardStream.listen((data) {
+      socketCallback(data);
+    }, onDone: () {
+      print("");
+    }, onError: (error) {
+      print("");
+    });
     super.initState();
   }
 
@@ -174,6 +181,17 @@ class _AppState extends State<AppPage> {
         });
     setState(() {});
   }
+
+  void socketCallback(String data) {
+    if (data == "active") {
+      blinkColor = Colors.orange;
+    } else if (data == "inactive") {
+      blinkColor = Colors.grey[500];
+    }
+    buttonDataList.forEach((b) => {
+          b.SetBlinkColor(blinkColor),
+        });
+  }
 }
 
 class ButtonData {
@@ -181,6 +199,7 @@ class ButtonData {
   double x, y;
   bool state;
   bool blinkState;
+  Color blinkColor;
   Function callback;
 
   ButtonData(String name, double x, double y, bool state, Function callback) {
@@ -189,13 +208,14 @@ class ButtonData {
     this.y = y;
     this.state = state;
     this.blinkState = false;
+    this.blinkColor = Colors.black;
     this.callback = callback;
   }
 
   Widget Get() {
     Color stateColor = Colors.white;
     if (this.state && this.blinkState) {
-      stateColor = Colors.orange;
+      stateColor = blinkColor;
     } else {
       stateColor = Colors.grey[200];
     }
@@ -237,7 +257,11 @@ class ButtonData {
     this.blinkState = !this.blinkState;
   }
 
-  void SetBlinkState(){
+  void SetBlinkState() {
     this.blinkState = true;
+  }
+
+  void SetBlinkColor(Color color) {
+    this.blinkColor = color;
   }
 }

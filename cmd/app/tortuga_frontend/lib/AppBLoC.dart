@@ -30,7 +30,7 @@ class AppBLoC {
   /* Buffer 
   1. to keep the data from stream 
   2. to use it in the timer handler */
-  String buttonName = "stop/stop";
+  String buttonName = "none/none";
 
   // constructor
   AppBLoC() {
@@ -67,8 +67,8 @@ class AppBLoC {
     }
   }
 
+  /* This timer handler prints and sends the last message */
   void callback(Timer timer) async {
-    // expired = true;
     if (socket != null && socket.readyState == html.WebSocket.OPEN) {
       socket.send(json.encode({
         "ButtonName": buttonName,

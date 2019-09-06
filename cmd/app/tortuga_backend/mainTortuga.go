@@ -5,14 +5,13 @@ import (
 	"time"
 
 	"github.com/bus710/tortuga"
-	"github.com/bus710/tortuga/cmd/command"
 	"github.com/bus710/tortuga/cmd/model"
 )
 
 // BasicControl ...
 type BasicControl struct {
-	x int
-	y int
+	forwardBackward string
+	leftRight       string
 }
 
 // Tortuga ...
@@ -24,7 +23,7 @@ type Tortuga struct {
 	chanRequest chan BasicControl
 
 	timeOverCounter int
-	lut             [5][5][2]int
+	lut             [3][3][2]int
 	request         BasicControl
 	current         BasicControl
 	speed           int16
@@ -40,26 +39,24 @@ func (t *Tortuga) init(app *App) {
 	t.chanStop = make(chan bool, 1)
 	t.chanRequest = make(chan BasicControl, 1)
 
-	t.request = BasicControl{2, 2}
-	t.current = BasicControl{2, 2}
+	t.request = BasicControl{"none", "none"}
+	t.current = BasicControl{"none", "none"}
 
 	t.speed = 0
 	t.angle = 0
 
 	t.timeOverCounter = 0
 
-	// https: //www.tutorialspoint.com/go/go_multi_dimensional_arrays.htm
-	t.lut = [5][5][2]int{
-		{{100, 100}, {100, 50}, {100, 0}, {100, -50}, {100, -100}},
-		{{50, 100}, {50, 50}, {50, 0}, {50, -50}, {50, -100}},
-		{{100, 1}, {50, 1}, {0, 0}, {-50, 1}, {-100, 1}},
-		{{-50, 100}, {-50, 50}, {-50, 0}, {-50, -50}, {-50, -100}},
-		{{-100, 100}, {-100, 50}, {-100, 0}, {-100, -50}, {-100, -100}},
+	// https://www.tutorialspoint.com/go/go_multi_dimensional_arrays.htm
+	t.lut = [3][3][2]int{
+		{{100, 100}, {100, 0}, {100, -100}},
+		{{100, 1}, {0, 0}, {-100, 1}},
+		{{-100, 100}, {-100, 0}, {-100, -100}},
 	}
 
 	err := t.conn.Init(&app.waitInstance, t.handler, "ttyUSB0")
 	if err != nil {
-		log.Fatal(err)
+		// log.Fatal(err)
 	}
 }
 
@@ -77,16 +74,15 @@ run:
 			t.timeOverCounter++
 			if t.timeOverCounter > 30 {
 				t.timeOverCounter = 0
-				t.request.x = 2
-				t.request.y = 2
+				t.request = BasicControl{"none", "none"}
 			}
 			t.calculate()
-			t.conn.Send(command.BaseControlCommand(t.speed, t.angle))
+			// t.conn.Send(command.BaseControlCommand(t.speed, t.angle))
 
 		case request := <-t.chanRequest:
-			t.request = request
 			t.timeOverCounter = 0
-			log.Println(t.lut[t.request.y][t.request.x])
+			t.request = request
+			log.Println(t.request.forwardBackward, "/", t.request.leftRight)
 
 		case <-t.chanStop:
 			t.conn.Stop()
@@ -105,11 +101,9 @@ func (t *Tortuga) handler(fdb model.Feedback) {
 // to the Kobuki command (speed, angle)
 func (t *Tortuga) calculate() {
 	// http://yujinrobot.github.io/kobuki/enAppendixProtocolSpecification.html
-	speedAngle := t.lut[t.request.y][t.request.x]
-	// t.current.x = speedAngle[0]
-	// t.current.y = speedAngle[1]
-	t.speed = int16(speedAngle[0])
-	t.angle = int16(speedAngle[1])
+	// speedAngle := t.lut[t.request.y][t.request.x]
+	// t.speed = int16(speedAngle[0])
+	// t.angle = int16(speedAngle[1])
 
 	//===================================================
 	// // if there is no input, stop the robot but smoothly

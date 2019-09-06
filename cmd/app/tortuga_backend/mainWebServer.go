@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"golang.org/x/net/websocket"
@@ -46,7 +45,6 @@ func (ws *webServer) socket(wsocket *websocket.Conn) {
 	ws.activeSockets = append(ws.activeSockets, wsocket)
 
 	message := Message{}
-	basicControl := BasicControl{2, 2}
 
 run:
 	for {
@@ -56,12 +54,14 @@ run:
 			break run
 		} else {
 
-			basicControl.x, err = strconv.Atoi(
-				strings.Split(message.ButtonName, "/")[0])
-			basicControl.y, err = strconv.Atoi(
-				strings.Split(message.ButtonName, "/")[1])
+			res := strings.Split(message.ButtonName, "/")
+			if len(res) == 2 {
+				if (res[0] == "forward" || res[0] == "none" || res[0] == "backward") &&
+					(res[1] == "left" || res[1] == "none" || res[1] == "right") {
 
-			ws.app.tortugaInstance.chanRequest <- basicControl
+					ws.app.tortugaInstance.chanRequest <- BasicControl{res[0], res[1]}
+				}
+			}
 		}
 	}
 

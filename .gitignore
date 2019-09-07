@@ -12,3 +12,7 @@
 *.out
 cmd/app/simple/__debug_bin
 cmd/app/simple/simple
+
+examples/tortuga_backend/__debug_bin
+
+examples/tortuga_backend/main

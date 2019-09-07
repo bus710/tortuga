@@ -8,11 +8,6 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-// Message ...
-type Message struct {
-	ButtonName string `json:"ButtonName"`
-}
-
 type webServer struct {
 	app           *App
 	instance      *http.Server

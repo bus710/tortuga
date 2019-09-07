@@ -5,14 +5,9 @@ import (
 	"time"
 
 	"github.com/bus710/tortuga"
+	"github.com/bus710/tortuga/cmd/command"
 	"github.com/bus710/tortuga/cmd/model"
 )
-
-// BasicControl ...
-type BasicControl struct {
-	forwardBackward string
-	leftRight       string
-}
 
 // Tortuga ...
 type Tortuga struct {
@@ -48,22 +43,24 @@ func (t *Tortuga) init(app *App) {
 	t.timeOverCounter = 0
 
 	// https://www.tutorialspoint.com/go/go_multi_dimensional_arrays.htm
+	maxSpeed := 120
+	maxTurn := 120
 	t.lut = [3][3][2]int{
-		{{100, 50}, {100, 0}, {100, -50}},
-		{{100, 1}, {0, 0}, {-100, 1}},
-		{{-100, 50}, {-100, 0}, {-100, -50}},
+		{{maxSpeed, maxTurn}, {maxSpeed, 0}, {maxSpeed, -maxTurn}},
+		{{maxSpeed, 1}, {0, 0}, {-maxSpeed, 1}},
+		{{-maxSpeed, maxTurn}, {-maxSpeed, 0}, {-maxSpeed, -maxTurn}},
 	}
 
 	err := t.conn.Init(&app.waitInstance, t.handler, "ttyUSB0")
 	if err != nil {
-		// log.Fatal(err)
+		log.Fatal(err)
 	}
 }
 
 func (t *Tortuga) run() {
 
 	go t.conn.Run()
-	ticker := time.NewTicker(500 * time.Millisecond).C
+	ticker := time.NewTicker(100 * time.Millisecond).C
 
 run:
 	for {
@@ -77,8 +74,8 @@ run:
 				t.request = BasicControl{"none", "none"}
 			}
 			t.calculate()
-			log.Println(t.request, t.speed, t.angle)
-			// t.conn.Send(command.BaseControlCommand(t.speed, t.angle))
+			// log.Println(t.request, t.speed, t.angle)
+			t.conn.Send(command.BaseControlCommand(t.speed, t.angle))
 
 		case request := <-t.chanRequest:
 			t.timeOverCounter = 0
@@ -175,12 +172,15 @@ func (t *Tortuga) calculate() {
 			t.angle = 0
 		}
 	} else {
-		// If the current request (request) is not same as the last request sent to the robot,
-		// need to ignore the request for now but decrease the speed to 0 progressively
+		// If the current request (request) is not same
+		// as the last request sent to the robot,
 		if t.speed == 0 && t.angle == 0 {
+			// The params are 0 so that the robot is stable
+			// and the new request can be applied to the robot
 			t.last = t.request
 		} else {
-			// If the last request stil affects to the robot (speed and angle are not 0),
+			// If the last request stil affects to the robot
+			// (speed and angle are not 0),
 			// decrease the params as much as 10 until 0
 			if t.speed > 10 {
 				t.speed -= 10

@@ -44,23 +44,25 @@ class _AppState extends State<AppPage> {
     // Init the button data list
     // First row
     buttonDataList
-        .add(ButtonData("forward/left", 20, 20, false, this.callback));
+        .add(ButtonData("forward/left", 20, 20, false, this.buttonCallback));
     buttonDataList
-        .add(ButtonData("forward/none", 110, 20, false, this.callback));
+        .add(ButtonData("forward/none", 110, 20, false, this.buttonCallback));
     buttonDataList
-        .add(ButtonData("forward/right", 200, 20, false, this.callback));
+        .add(ButtonData("forward/right", 200, 20, false, this.buttonCallback));
     // Second row
-    buttonDataList.add(ButtonData("none/left", 20, 110, false, this.callback));
-    buttonDataList.add(ButtonData("none/none", 110, 110, true, this.callback));
     buttonDataList
-        .add(ButtonData("none/right", 200, 110, false, this.callback));
+        .add(ButtonData("none/left", 20, 110, false, this.buttonCallback));
+    buttonDataList
+        .add(ButtonData("none/none", 110, 110, true, this.buttonCallback));
+    buttonDataList
+        .add(ButtonData("none/right", 200, 110, false, this.buttonCallback));
     // Third row
     buttonDataList
-        .add(ButtonData("backward/left", 20, 200, false, this.callback));
+        .add(ButtonData("backward/left", 20, 200, false, this.buttonCallback));
     buttonDataList
-        .add(ButtonData("backward/none", 110, 200, false, this.callback));
-    buttonDataList
-        .add(ButtonData("backward/right", 200, 200, false, this.callback));
+        .add(ButtonData("backward/none", 110, 200, false, this.buttonCallback));
+    buttonDataList.add(
+        ButtonData("backward/right", 200, 200, false, this.buttonCallback));
 
     timer = Timer.periodic(Duration(milliseconds: 500), timerCallback);
 
@@ -157,7 +159,7 @@ class _AppState extends State<AppPage> {
     return buttonDataList[index].Get();
   }
 
-  void callback(String pressedButtonName) {
+  void buttonCallback(String pressedButtonName) {
     // To the button indicate the color immediately
     timer.cancel();
     timer = Timer.periodic(Duration(milliseconds: 500), timerCallback);

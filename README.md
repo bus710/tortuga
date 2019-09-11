@@ -1,8 +1,7 @@
 # tortuga
 
+A Go driver project for Kobuki (turtle bot 2) that comes with its frontend example
 
-<figure class="video_container">
-  <video controls="false" allowfullscreen="false">
-    <source src="assets/example.webm" type="video/webm">
-  </video>
-</figure>
+<img src="assets/example.gif" width="316">
+
+<br/> <br/>

@@ -1,6 +1,6 @@
 # tortuga
 
-A Go driver project for Kobuki (turtle bot 2) that comes with its frontend example
+A simple Kobuki driver written in Go and its relevant examples written in Flutter
 
 <img src="assets/example.gif" width="316">
 

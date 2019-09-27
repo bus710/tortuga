@@ -8,13 +8,8 @@ import 'package:provider/provider.dart';
 import 'rootPage.dart';
 import 'rootModel.dart';
 
-// Palette:
-// https://www.materialpalette.com
-const int PRIMARY_COLOR = 0xff010101; // Change this (format - ARGB)
-
 void main() {
   runApp(App());
-  changeNavbarColor();
 }
 
 class App extends StatelessWidget {
@@ -22,6 +17,7 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    data.changeNavbarColor();
     return MaterialApp(
       title: data.title,
       theme: data.themeData,
@@ -35,13 +31,16 @@ class App extends StatelessWidget {
 }
 
 class AppData {
-  String title;
+  // Palette: https://www.materialpalette.com
+  int primaryColor;
   Map<int, Color> swatchColor;
-  ThemeData themeData;
   MaterialColor colorCustom;
+  ThemeData themeData;
+  String title;
+  String fontFamily;
 
   AppData() {
-    title = 'Flutter Demo';
+    primaryColor = 0xff00796b; // ARGB
     swatchColor = {
       50: Color.fromRGBO(136, 14, 79, .1),
       100: Color.fromRGBO(136, 14, 79, .2),
@@ -54,22 +53,24 @@ class AppData {
       800: Color.fromRGBO(136, 14, 79, .9),
       900: Color.fromRGBO(136, 14, 79, 1),
     };
-    colorCustom = MaterialColor(PRIMARY_COLOR, swatchColor);
+    colorCustom = MaterialColor(primaryColor, swatchColor);
+    fontFamily = "OpenSans";
     themeData = ThemeData(
       primaryColor: colorCustom,
       accentColor: colorCustom,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: colorCustom,
-      fontFamily: "OpenSans",
+      fontFamily: fontFamily,
     );
+    title = 'Flutter Demo';
   }
-}
 
-void changeNavbarColor() async {
-  try {
-    await FlutterStatusbarcolor.setNavigationBarColor(Colors.black,
-        animate: true);
-  } on PlatformException catch (e) {
-    debugPrint(e.toString());
+  void changeNavbarColor() async {
+    try {
+      await FlutterStatusbarcolor.setNavigationBarColor(Color(primaryColor),
+          animate: true);
+    } on PlatformException catch (e) {
+      debugPrint(e.toString());
+    }
   }
 }

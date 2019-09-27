@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'main.dart';
 import 'rootModel.dart';
@@ -21,11 +25,85 @@ class RootPage extends StatelessWidget {
         return InitPage(data: data);
         break;
       case Status.dial:
-        return InitPage(data: data);
+        return DialPage(data: data);
         break;
       case Status.init:
       default:
         return InitPage(data: data);
+    }
+  }
+}
+
+class DialPage extends StatefulWidget {
+  final AppData data;
+
+  DialPage({Key key, this.data}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return DialPageState();
+  }
+}
+
+class DialPageState extends State<DialPage> {
+  Timer _timer;
+  bool _show;
+
+  @override
+  void initState() {
+    _timer = Timer.periodic(Duration(milliseconds: 100), timerHandler);
+    _show = false;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void timerHandler(Timer timer) async {
+    _show = true;
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var rootModel = Provider.of<RootModel>(context);
+
+    if (_show) {
+      return Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(0),
+          child: AppBar(),
+        ),
+        body: Center(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+            ),
+            child: SpinKitFoldingCube(
+              color: Colors.orange[600],
+              size: 80.0,
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(0),
+          child: AppBar(),
+        ),
+        body: Center(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+            ),
+            child: Center(),
+          ),
+        ),
+      );
     }
   }
 }
@@ -42,8 +120,11 @@ class InitPage extends StatefulWidget {
 }
 
 class InitPageState extends State<InitPage> {
+  String mainText;
+
   @override
   void initState() {
+    mainText = "Host IP";
     super.initState();
   }
 
@@ -54,12 +135,7 @@ class InitPageState extends State<InitPage> {
       // Give 0 to remove appBar from the actual screen
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(0),
-        child: AppBar(
-          title: Text(widget.data.title,
-              style: TextStyle(fontWeight: FontWeight.w100, fontSize: 12)),
-          centerTitle: true,
-          elevation: 0,
-        ),
+        child: AppBar(),
       ),
       body: Center(
         child: Container(
@@ -71,13 +147,13 @@ class InitPageState extends State<InitPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Container(
-                margin: EdgeInsets.all(10),
+                margin: EdgeInsets.all(40),
                 child: SizedBox(
                   width: 150,
                   height: 60,
                   child: Text(
-                    "Host IP",
-                    style: TextStyle(fontSize: 32),
+                    mainText,
+                    style: TextStyle(fontSize: 44, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -93,7 +169,7 @@ class InitPageState extends State<InitPage> {
                   style: TextStyle(
                       fontSize: 24,
                       color: Colors.black,
-                      fontFamily: "OpenSans"),
+                      fontFamily: widget.data.fontFamily),
                   strutStyle: StrutStyle.fromTextStyle(TextStyle(height: 0.1)),
                   decoration: InputDecoration(
                     filled: true,
@@ -106,15 +182,13 @@ class InitPageState extends State<InitPage> {
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(5)),
                   ),
-                  onFieldSubmitted: (v) {
-                    debugPrint(">>> " + v);
-                    debugPrint("${rootModel.getCounter().toString()}");
-                    rootModel.pressHandler();
+                  onFieldSubmitted: (address) {
+                    rootModel.pressHandler(Status.dial, address);
                   },
                 ),
               ),
               Container(
-                height: 60,
+                height: 100,
               )
             ],
           ),

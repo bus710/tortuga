@@ -1,39 +1,45 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-enum Status{
+enum Status {
   init,
   dial,
   connected,
   disconnected,
 }
 
-
 class RootModel with ChangeNotifier {
   Timer _timer;
-  int _counter;
   Status _state;
 
   RootModel() {
     _timer = Timer.periodic(Duration(milliseconds: 300), timerHandler);
-    _counter = 0;
-    _state = Status.init; 
+    _state = Status.init;
   }
 
-  getCounter() => _counter;
   getStatus() => _state;
 
   void timerHandler(Timer timer) async {
-    if (_counter > 0) {
-      debugPrint(">>> Timer log from the init model");
-      _counter--;
-      notifyListeners();
-    }
+    // notifyListeners();
   }
 
-  void pressHandler() {
-    _counter++;
-    debugPrint(">>> Press log from the init model");
+  void pressHandler(Status request, String param) {
+    switch (_state) {
+      case Status.init:
+        if (request == Status.dial) {
+          // TODO: check the format of IP address
+          _state = Status.dial;
+        }
+        break;
+      case Status.dial:
+        break;
+      case Status.connected:
+        break;
+      case Status.disconnected:
+        break;
+      default:
+        break;
+    }
     notifyListeners();
   }
 }

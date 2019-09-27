@@ -78,14 +78,25 @@ class DialPageState extends State<DialPage> {
           child: AppBar(),
         ),
         body: Center(
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-            ),
-            child: SpinKitFoldingCube(
-              color: Colors.orange[600],
-              size: 80.0,
-            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                height: 60,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                ),
+                child: SpinKitFoldingCube(
+                  color: Colors.grey[300],
+                  size: 80.0,
+                ),
+              ),
+              Container(
+                height: 100,
+              ),
+            ],
           ),
         ),
       );

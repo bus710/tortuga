@@ -40,7 +40,8 @@ class AppData {
   String fontFamily;
 
   AppData() {
-    primaryColor = 0xff00796b; // ARGB
+    // primaryColor = 0xff00796b; // ARGB
+    primaryColor = 0xff056592; // ARGB
     swatchColor = {
       50: Color.fromRGBO(136, 14, 79, .1),
       100: Color.fromRGBO(136, 14, 79, .2),

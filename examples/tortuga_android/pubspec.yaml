@@ -1,0 +1,28 @@
+name: tortuga_android
+description: A new Flutter project.
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^3.1.0
+  flutter_statusbarcolor: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  fonts:
+  - family: OpenSans
+    fonts:
+      - asset: fonts/OpenSans-Regular.ttf
+  - family: MaterialIcons
+    fonts:
+      - asset: fonts/MaterialIcons-Regular.ttf

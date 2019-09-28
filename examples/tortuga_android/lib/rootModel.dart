@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
-import 'package:http/http.dart' as http;
 
 enum Status {
   init,
@@ -44,9 +43,27 @@ class RootModel with ChangeNotifier {
     switch (_state) {
       case Status.init:
         if (request == Request.dial) {
-          // TODO: check the format of IP address
+          // Checking for the input string's format.
           if (param.length == 0) {
+            // empty or not
             return;
+          } else if (param.split('.').length != 4) {
+            // normal ipv4 string?
+            return;
+          } else {
+            // each cell has numerics only?
+            bool anyError = false;
+            param.split('.').forEach(
+                  (p) => {
+                    if (double.tryParse(p) == null)
+                      {
+                        anyError = true,
+                      }
+                  },
+                );
+            if (anyError) {
+              return;
+            }
           }
 
           _host = param;
@@ -60,7 +77,10 @@ class RootModel with ChangeNotifier {
         break;
       case Status.connected:
         if (request == Request.send) {
-          // TODO: check the format of button name
+          // Checking the format of button name
+          if (param.split('/').length != 2) {
+            return;
+          }
           _buttonName = param;
           send();
         } else if (request == Request.disconnect) {

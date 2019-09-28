@@ -69,7 +69,6 @@ class ConnectedPageState extends State<ConnectedPage> {
     _mxSize = BoxSize(height: 0, width: 0);
     _fbSize = BoxSize(height: 0, width: 0);
     _ctSize = BoxSize(height: 0, width: 0);
-    _blinkColor = Colors.black;
     // _buttonState = Map<String, bool>();
     _buttonDataList = List<ButtonData>();
 
@@ -83,7 +82,7 @@ class ConnectedPageState extends State<ConnectedPage> {
     _buttonDataList
         .add(ButtonData("none/left", 20, 110, false, this.buttonCallback));
     _buttonDataList
-        .add(ButtonData("none/none", 110, 110, false, this.buttonCallback));
+        .add(ButtonData("none/none", 110, 110, true, this.buttonCallback));
     _buttonDataList
         .add(ButtonData("none/right", 200, 110, false, this.buttonCallback));
 
@@ -133,7 +132,7 @@ class ConnectedPageState extends State<ConnectedPage> {
     _buttonDataList.forEach((b) => {
           b.flipBlinkState(),
         });
-    // setState(() {});
+    setState(() {});
   }
 
   Widget getInterface() {
@@ -232,7 +231,8 @@ class ButtonData {
     _y = y;
     _state = state;
     _blinkState = false;
-    _blinkColor = Colors.black;
+    // _blinkColor = Colors.greenAccent[400];
+    _blinkColor = Colors.greenAccent;
     _callback = callback;
   }
 

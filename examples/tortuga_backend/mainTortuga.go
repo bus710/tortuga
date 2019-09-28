@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/bus710/tortuga"
-	"github.com/bus710/tortuga/cmd/command"
 	"github.com/bus710/tortuga/cmd/model"
 )
 
@@ -53,7 +52,7 @@ func (t *Tortuga) init(app *App) {
 
 	err := t.conn.Init(&app.waitInstance, t.handler, "ttyUSB0")
 	if err != nil {
-		log.Fatal(err)
+		// log.Fatal(err)
 	}
 }
 
@@ -75,7 +74,7 @@ run:
 			}
 			t.calculate()
 			// log.Println(t.request, t.speed, t.angle)
-			t.conn.Send(command.BaseControlCommand(t.speed, t.angle))
+			// t.conn.Send(command.BaseControlCommand(t.speed, t.angle))
 
 		case request := <-t.chanRequest:
 			t.timeOverCounter = 0

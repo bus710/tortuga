@@ -4,6 +4,8 @@ github.com/bus710/tortuga v0.0.0-20190901224728-11d50f0b58ab h1:L29cXdNnIirBl7JR
 github.com/bus710/tortuga v0.0.0-20190901224728-11d50f0b58ab/go.mod h1:ApV/g/8FVfV1pvbQTZaL2yB/z81wFnn2dp6HtDNgUU4=
 github.com/bus710/tortuga v0.0.0-20190902013209-6aabe1a90d8f h1:zLU/Jo8ZO2yd2NyKYENgPexeR3xd//GCcXeh7vnHKPY=
 github.com/bus710/tortuga v0.0.0-20190902013209-6aabe1a90d8f/go.mod h1:ApV/g/8FVfV1pvbQTZaL2yB/z81wFnn2dp6HtDNgUU4=
+github.com/gorilla/websocket v1.4.1 h1:q7AeDBpnBk8AogcD4DSag/Ukw/KV+YhzLj2bP5HvKCM=
+github.com/gorilla/websocket v1.4.1/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07 h1:UyzmZLoiDWMRywV4DUYb9Fbt8uiOSooupjTq10vpvnU=
 github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07/go.mod h1:kDXzergiv9cbyO7IOYJZWg1U88JhDg3PB6klq9Hg2pA=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=

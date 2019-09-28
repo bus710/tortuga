@@ -45,10 +45,14 @@ class RootModel with ChangeNotifier {
       case Status.init:
         if (request == Request.dial) {
           // TODO: check the format of IP address
+          if (param.length == 0) {
+            return;
+          }
+
           _host = param;
           _state = Status.connecting;
           notifyListeners();
-          await Future.delayed(Duration(seconds: 2));
+          await Future.delayed(Duration(seconds: 3));
           socketInit();
         }
         break;
@@ -76,9 +80,6 @@ class RootModel with ChangeNotifier {
   }
 
   void socketInit() {
-    // https://gist.github.com/pyzenberg/4037e11627a8cac1c442183cc7cf172a
-
-    // _ws = IOWebSocketChannel.connect('ws://echo.websocket.org',
     _ws = IOWebSocketChannel.connect(
       'ws://' + _host + ':8080/message',
       pingInterval: Duration(seconds: 2),
@@ -107,11 +108,8 @@ class RootModel with ChangeNotifier {
 
   void send() {
     if (_state == Status.connected && _ws != null) {
-      _ws.sink.add(
-        json.encode({
-          "ButtonName": _buttonName,
-        }),
-      );
+      var tmp = json.encode({"ButtonName": _buttonName});
+      _ws.sink.add(tmp);
     }
   }
 }

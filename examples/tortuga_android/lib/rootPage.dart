@@ -58,7 +58,6 @@ class ConnectedPageState extends State<ConnectedPage> {
   BoxSize _ctSize; // the size of the controller box
 
   Color _blinkColor;
-  // Map<String, bool> _buttonState;
   List<ButtonData> _buttonDataList;
 
   @override
@@ -68,7 +67,6 @@ class ConnectedPageState extends State<ConnectedPage> {
     _mxSize = BoxSize(height: 0, width: 0);
     _fbSize = BoxSize(height: 0, width: 0);
     _ctSize = BoxSize(height: 0, width: 0);
-    // _buttonState = Map<String, bool>();
     _buttonDataList = List<ButtonData>();
 
     _buttonDataList
@@ -86,7 +84,7 @@ class ConnectedPageState extends State<ConnectedPage> {
         .add(ButtonData("none/right", 200, 110, false, this.buttonCallback));
 
     _buttonDataList
-        .add(ButtonData("backward.left", 20, 200, false, this.buttonCallback));
+        .add(ButtonData("backward/left", 20, 200, false, this.buttonCallback));
     _buttonDataList
         .add(ButtonData("backward/none", 110, 200, false, this.buttonCallback));
     _buttonDataList.add(
@@ -102,7 +100,6 @@ class ConnectedPageState extends State<ConnectedPage> {
       child: LayoutBuilder(builder: (context, constraint) {
         _mxSize.height = constraint.maxWidth;
         _mxSize.width = constraint.maxHeight;
-        // print(maxW.toString() + " / " + maxH.toString());
         return getInterface();
       }),
     );

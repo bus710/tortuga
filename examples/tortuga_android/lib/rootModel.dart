@@ -92,11 +92,11 @@ class RootModel with ChangeNotifier {
       case Status.disconnected:
         _buttonName = "none/none";
         _state = Status.init;
+        notifyListeners();
         break;
       default:
         break;
     }
-    notifyListeners();
   }
 
   void socketInit() {
@@ -124,6 +124,7 @@ class RootModel with ChangeNotifier {
   void onDone() {
     _state = Status.disconnected;
     _ws = null;
+    notifyListeners();
   }
 
   void send() {

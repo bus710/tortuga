@@ -19,8 +19,7 @@ class RootPage extends StatelessWidget {
 
     switch (rootModel.getStatus()) {
       case Status.disconnected:
-        // return InitPage(data: data);
-        return ConnectedPage(data: data);
+        return InitPage(data: data);
       case Status.connected:
         return ConnectedPage(data: data);
       case Status.connecting:

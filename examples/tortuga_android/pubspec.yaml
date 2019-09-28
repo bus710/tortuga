@@ -10,10 +10,11 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^3.1.0
-  universal_html: ^1.1.4
+  # universal_html: ^1.1.4
+  http: any
+  web_socket_channel: ^1.0.15
   flutter_statusbarcolor: any
-  flutter_spinkit: "^2.1.0"
-
+  flutter_spinkit: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -23,9 +24,9 @@ flutter:
   uses-material-design: true
 
   fonts:
-  - family: OpenSans
-    fonts:
-      - asset: fonts/OpenSans-Regular.ttf
-  - family: MaterialIcons
-    fonts:
-      - asset: fonts/MaterialIcons-Regular.ttf
+    - family: OpenSans
+      fonts:
+        - asset: fonts/OpenSans-Regular.ttf
+    - family: MaterialIcons
+      fonts:
+        - asset: fonts/MaterialIcons-Regular.ttf

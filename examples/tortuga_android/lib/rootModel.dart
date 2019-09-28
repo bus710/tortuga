@@ -2,7 +2,10 @@ import 'dart:async';
 import 'dart:convert'; // for JSON/struct conversion
 
 import 'package:flutter/material.dart';
-import 'package:universal_html/html.dart' as html;
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/status.dart' as status;
+import 'package:http/http.dart' as http;
 
 enum Status {
   init,
@@ -21,7 +24,7 @@ enum Request {
 class RootModel with ChangeNotifier {
   Timer _timer;
   Status _state;
-  html.WebSocket _socket;
+  IOWebSocketChannel _ws;
   String _host;
   String _buttonName;
 
@@ -32,22 +35,21 @@ class RootModel with ChangeNotifier {
   }
 
   getStatus() => _state;
-  getSocketStatus() => _socket.readyState;
 
   void timerHandler(Timer timer) async {
     send();
   }
 
-  void pressHandler(Request request, String param) {
-    debugPrint(_state.toString() + " / " + request.toString() + " / " + param);
-    debugPrint(">>> " + _socket.readyState.toString());
+  void pressHandler(Request request, String param) async {
     switch (_state) {
       case Status.init:
         if (request == Request.dial) {
           // TODO: check the format of IP address
           _host = param;
-          socketInit();
           _state = Status.connecting;
+          notifyListeners();
+          await Future.delayed(Duration(seconds: 2));
+          socketInit();
         }
         break;
       case Status.connecting:
@@ -57,12 +59,14 @@ class RootModel with ChangeNotifier {
           // TODO: check the format of button name
           _buttonName = param;
           send();
+        } else if (request == Request.disconnect) {
+          if (_ws != null) {
+            _ws.sink.close(status.goingAway);
+          }
         }
         break;
       case Status.disconnected:
         _buttonName = "none/none";
-        send();
-        _socket.close();
         _state = Status.init;
         break;
       default:
@@ -72,42 +76,42 @@ class RootModel with ChangeNotifier {
   }
 
   void socketInit() {
+    // https://gist.github.com/pyzenberg/4037e11627a8cac1c442183cc7cf172a
 
-    if (_socket.readyState == html.WebSocket.OPEN) {
-      _socket.close();
-    }
+    // _ws = IOWebSocketChannel.connect('ws://echo.websocket.org',
+    _ws = IOWebSocketChannel.connect(
+      'ws://' + _host + ':8080/message',
+      pingInterval: Duration(seconds: 2),
+    );
 
-    debugPrint(">>> 1");
+    _state = Status.connected;
+    _ws.stream.listen(this.onData, onError: onError, onDone: onDone);
 
-    _socket = html.WebSocket('ws://' + _host + ':3000/message');
+    notifyListeners();
+  }
 
-    debugPrint(">>> 2");
+  void onData(event) {
+    debugPrint("received: " + event);
+  }
 
-    _socket.onOpen.listen((e) async {
-      debugPrint("websocket: opened");
-      await Future.delayed(Duration(seconds: 2));
-      _state = Status.connected;
-      notifyListeners();
-    });
+  void onError(err) {
+    debugPrint(err.runtimeType.toString());
+    WebSocketChannelException ex = err;
+    debugPrint(ex.message);
+  }
 
-    _socket.onClose.listen((e) {
-      debugPrint("websocket: closed");
-      _state = Status.disconnected;
-      notifyListeners();
-    });
-
-    _socket.onMessage.listen((e) {
-      // Do nothing
-    });
+  void onDone() {
+    _state = Status.disconnected;
+    _ws = null;
   }
 
   void send() {
-    if (_state == Status.connected &&
-        _socket != null &&
-        _socket.readyState == html.WebSocket.OPEN) {
-      _socket.send(json.encode({
-        "ButtonName": _buttonName,
-      }));
+    if (_state == Status.connected && _ws != null) {
+      _ws.sink.add(
+        json.encode({
+          "ButtonName": _buttonName,
+        }),
+      );
     }
   }
 }

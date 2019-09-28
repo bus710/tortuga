@@ -16,7 +16,7 @@ type webServer struct {
 
 func (ws *webServer) init(app *App) {
 	ws.app = app
-	ws.instance = &http.Server{Addr: ":3000"}
+	ws.instance = &http.Server{Addr: ":8080"}
 }
 
 func (ws *webServer) run() {

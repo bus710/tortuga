@@ -19,14 +19,12 @@ class RootPage extends StatelessWidget {
 
     switch (rootModel.getStatus()) {
       case Status.disconnected:
-        return InitPage(data: data);
-        break;
+        // return InitPage(data: data);
+        return ConnectedPage(data: data);
       case Status.connected:
         return ConnectedPage(data: data);
-        break;
       case Status.connecting:
         return DialPage(data: data);
-        break;
       case Status.init:
       default:
         return InitPage(data: data);
@@ -102,7 +100,6 @@ class ConnectedPageState extends State<ConnectedPage> {
   @override
   Widget build(BuildContext context) {
     rootModel = Provider.of<RootModel>(context);
-
     return Center(
       child: LayoutBuilder(builder: (context, constraint) {
         _mxSize.height = constraint.maxWidth;
@@ -126,7 +123,7 @@ class ConnectedPageState extends State<ConnectedPage> {
           if (b._name == pressedButtonName) {b.setButtonState()}
         });
 
-    rootModel.pressHandler.send(Request.send, pressedButtonName);
+    rootModel.pressHandler(Request.send, pressedButtonName);
 
     setState(() {});
   }
@@ -136,23 +133,33 @@ class ConnectedPageState extends State<ConnectedPage> {
     _buttonDataList.forEach((b) => {
           b.flipBlinkState(),
         });
-    setState(() {});
+    // setState(() {});
   }
 
   Widget getInterface() {
     if (_mxSize.width > 319) {
       _fbSize.width = _ctSize.height = _ctSize.width = 319;
-      return Container(
+
+      // https://stackoverflow.com/questions/47114639/yellow-lines-under-text-widgets-in-flutter
+      // Material should be the widget returned because this is called as MaterialPageRoute
+      return Material(
+        type: MaterialType.transparency,
+        child: Container(
           decoration: BoxDecoration(
             color: Color(widget.data.primaryColor),
           ),
           child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 _getTitleInterface(),
+                Container(
+                  height: 64,
+                ),
                 _getControllerInterface(),
-              ]));
+              ]),
+        ),
+      );
     } else {
       return Text("The space available is too small");
     }
@@ -180,7 +187,7 @@ class ConnectedPageState extends State<ConnectedPage> {
         style: TextStyle(
           fontSize: 48,
           fontWeight: FontWeight.w100,
-          color: Colors.grey[200],
+          color: Colors.grey[100],
         ),
       )),
     );
@@ -414,7 +421,10 @@ class InitPageState extends State<InitPage> {
                   height: 60,
                   child: Text(
                     mainText,
-                    style: TextStyle(fontSize: 44, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 44,
+                        fontWeight: FontWeight.w100,
+                        color: Colors.grey[100]),
                     textAlign: TextAlign.center,
                   ),
                 ),

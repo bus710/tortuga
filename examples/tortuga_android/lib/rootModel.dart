@@ -24,6 +24,7 @@ class RootModel with ChangeNotifier {
   }
 
   getStatus() => _state;
+  removeTimer() => _timer.cancel(); // Just for the warning message
 
   void timerHandler(Timer timer) async {
     send();

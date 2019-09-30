@@ -68,12 +68,20 @@ class ConnectedPageState extends State<ConnectedPage> {
   @override
   Widget build(BuildContext context) {
     rootModel = Provider.of<RootModel>(context);
-    return Center(
-      child: LayoutBuilder(builder: (context, constraint) {
-        _mxSize.height = constraint.maxWidth;
-        _mxSize.width = constraint.maxHeight;
-        return getInterface();
-      }),
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(0),
+        child: AppBar(),
+      ),
+      body: Center(
+        child: LayoutBuilder(
+          builder: (context, constraint) {
+            _mxSize.height = constraint.maxWidth;
+            _mxSize.width = constraint.maxHeight;
+            return getInterface();
+          },
+        ),
+      ),
     );
   }
 
@@ -107,24 +115,20 @@ class ConnectedPageState extends State<ConnectedPage> {
     if (_mxSize.width > 319) {
       _fbSize.width = _ctSize.height = _ctSize.width = 319;
 
-      // https://stackoverflow.com/questions/47114639/yellow-lines-under-text-widgets-in-flutter
-      // Material should be the widget returned because this is called as MaterialPageRoute
-      return Material(
-        type: MaterialType.transparency,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Color(widget.data.primaryColor),
-          ),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                _getTitleInterface(),
-                Container(
-                  height: 64,
-                ),
-                _getControllerInterface(),
-              ]),
+      return Container(
+        decoration: BoxDecoration(
+          color: Color(widget.data.primaryColor),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            _getTitleInterface(),
+            Container(
+              height: 64,
+            ),
+            _getControllerInterface(),
+          ],
         ),
       );
     } else {

@@ -1,3 +1,5 @@
+/* This defines some global variables for the app's space */
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // for platform exception
 

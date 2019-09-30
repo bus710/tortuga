@@ -1,3 +1,4 @@
+// Status can be used in the rootModel
 enum Status {
   init,
   connecting,
@@ -5,6 +6,7 @@ enum Status {
   disconnected,
 }
 
+// Request can be used in the pages as the param to rootModel
 enum Request {
   dial,
   connect,

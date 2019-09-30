@@ -1,3 +1,5 @@
+/* This is the provider's model. */
+
 import 'dart:async';
 import 'dart:convert'; // for JSON/struct conversion
 
@@ -6,19 +8,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
 
-enum Status {
-  init,
-  connecting,
-  connected,
-  disconnected,
-}
-
-enum Request {
-  dial,
-  connect,
-  send,
-  disconnect,
-}
+import 'utils/enums.dart';
 
 class RootModel with ChangeNotifier {
   Timer _timer;

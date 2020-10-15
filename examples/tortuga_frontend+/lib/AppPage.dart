@@ -242,6 +242,7 @@ class ButtonData {
             ),
           ),
           onTap: () {
+            debugPrint("In Page: " + this.name);
             if (this.state) {
               this.state = false;
             } else {

@@ -26,7 +26,7 @@ func (ws *webServer) init(app *App) {
 
 func (ws *webServer) run() {
 	http.HandleFunc("/message", ws.socket)
-	http.Handle("/", http.FileServer(http.Dir("../tortuga_frontend/build/web")))
+	http.Handle("/", http.FileServer(http.Dir("../tortuga_frontend+/build/web")))
 
 	log.Println(ws.instance.ListenAndServe())
 	ws.app.waitInstance.Done()

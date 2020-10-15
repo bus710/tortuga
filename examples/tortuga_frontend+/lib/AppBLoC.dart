@@ -1,8 +1,9 @@
 import 'dart:async'; // for streams
 // import 'package:http/http.dart' as http;
 import 'dart:convert'; // for JSON/struct conversion
-import 'package:universal_html/html.dart' as html;
 
+import 'package:flutter/material.dart';
+import 'package:universal_html/html.dart' as html;
 /* Project packages */
 import 'package:tortuga_frontend/AppEvent.dart';
 
@@ -57,32 +58,37 @@ class AppBLoC {
   - The websocket.
   - So this is the place to make some action (i.e. marshaling). */
   _frontendHandler(AppEvent event) async {
-    if (event.runtimeType.toString() == "ButtonEvent") {
-      if (socket != null && socket.readyState == html.WebSocket.OPEN) {
-        socket.send(json.encode({
-          "ButtonName": event.buttonName,
-        }));
-      } else {
-        // print('WebSocket not connected, message data not sent');
-      }
-      buttonName = event.buttonName;
+    // debugPrint(socket.toString() + " / " + socket.readyState.toString());
+    // debugPrint(event.runtimeType.toString());
+
+    if (socket != null && socket.readyState == html.WebSocket.OPEN) {
+      socket.send(json.encode({
+        "ButtonName": event.buttonName,
+      }));
+    } else {
+      // print('WebSocket not connected, message data not sent');
     }
+    buttonName = event.buttonName;
+
+    // debugPrint(event.buttonName + " / " + buttonName);
   }
 
   /* This timer handler prints and sends the last message */
   void callback(Timer timer) async {
+    // debugPrint(socket.toString() + " / " + socket.readyState.toString());
+
     if (socket != null && socket.readyState == html.WebSocket.OPEN) {
       socket.send(json.encode({
         "ButtonName": buttonName,
       }));
     }
 
-    print(buttonName);
+    // debugPrint("In BLoC: " + buttonName);
   }
 
   socketInit() {
     socket = html.WebSocket(
-        'ws://' + html.window.location.hostname + ':3000/message');
+        'ws://' + html.window.location.hostname + ':8080/message');
 
     socket.onOpen.listen((e) {
       print("websocket: opened");

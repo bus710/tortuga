@@ -43,8 +43,8 @@ func (t *Tortuga) init(app *App) {
 	t.timeOverCounter = 0
 
 	// https://www.tutorialspoint.com/go/go_multi_dimensional_arrays.htm
-	maxSpeed := 120
-	maxTurn := 120
+	maxSpeed := 180
+	maxTurn := 180
 	t.lut = [3][3][2]int{
 		{{maxSpeed, maxTurn}, {maxSpeed, 0}, {maxSpeed, -maxTurn}},
 		{{maxSpeed, 1}, {0, 0}, {-maxSpeed, 1}},
@@ -105,13 +105,11 @@ func (t *Tortuga) calculate() {
 		speedAngle := [2]int{0, 0}
 		switch {
 		case t.request.forwardBackward == "forward" && t.request.leftRight == "left":
-			speedAngle = t.lut[0][0]
-			if t.speed < int16(speedAngle[0]) {
-				t.speed += 10
+			t.speed += 10
+			if t.speed > 120 {
+				t.speed = 120
 			}
-			if t.angle < int16(speedAngle[1]) {
-				t.angle += 10
-			}
+			t.angle = 480
 		case t.request.forwardBackward == "forward" && t.request.leftRight == "none":
 			speedAngle = t.lut[0][1]
 			if t.speed < int16(speedAngle[0]) {
@@ -119,21 +117,18 @@ func (t *Tortuga) calculate() {
 			}
 			t.angle = 0
 		case t.request.forwardBackward == "forward" && t.request.leftRight == "right":
-			speedAngle = t.lut[0][2]
-			if t.speed < int16(speedAngle[0]) {
-				t.speed += 10
+			t.speed += 10
+			if t.speed > 120 {
+				t.speed = 120
 			}
-			if t.angle > int16(speedAngle[1]) {
-				t.angle -= 10
-			}
+			t.angle = -480
 		case t.request.forwardBackward == "none" && t.request.leftRight == "left":
 			speedAngle = t.lut[1][0]
 			if t.speed < int16(speedAngle[0]) {
 				t.speed += 10
 			}
-			if t.angle < int16(speedAngle[1]) {
-				t.angle = 1
-			}
+			// pure rotation
+			t.angle = 1
 		case t.request.forwardBackward == "none" && t.request.leftRight == "none":
 			t.speed = 0
 			t.angle = 0
@@ -142,17 +137,14 @@ func (t *Tortuga) calculate() {
 			if t.speed > int16(speedAngle[0]) {
 				t.speed -= 10
 			}
-			if t.angle < int16(speedAngle[1]) {
-				t.angle = 1
-			}
+			// pure rotation
+			t.angle = 1
 		case t.request.forwardBackward == "backward" && t.request.leftRight == "left":
-			speedAngle = t.lut[2][0]
-			if t.speed > int16(speedAngle[0]) {
-				t.speed -= 10
+			t.speed -= 10
+			if t.speed < -120 {
+				t.speed = -120
 			}
-			if t.angle < int16(speedAngle[1]) {
-				t.angle += 10
-			}
+			t.angle = 480
 		case t.request.forwardBackward == "backward" && t.request.leftRight == "none":
 			speedAngle = t.lut[2][1]
 			if t.speed > int16(speedAngle[0]) {
@@ -160,13 +152,11 @@ func (t *Tortuga) calculate() {
 			}
 			t.angle = 0
 		case t.request.forwardBackward == "backward" && t.request.leftRight == "right":
-			speedAngle = t.lut[2][2]
-			if t.speed > int16(speedAngle[0]) {
-				t.speed -= 10
+			t.speed -= 10
+			if t.speed < -120 {
+				t.speed = -120
 			}
-			if t.angle > int16(speedAngle[1]) {
-				t.angle -= 10
-			}
+			t.angle = -480
 		default:
 			t.speed = 0
 			t.angle = 0

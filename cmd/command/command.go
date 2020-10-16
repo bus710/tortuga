@@ -14,6 +14,18 @@ func BaseControlCommand(
 	cmd.ID = constant.IDBaseControl
 	cmd.Size = constant.SizeBaseControl
 
+	if radius == 1 {
+		if speed > 1 {
+			// speed = speed * (radius + 230/2) / radius
+			speed = 0x00ff
+			radius = 0x00ff
+		} else if speed < 1 {
+			// speed = speed * (radius - 230/2) / radius
+			speed = -0x00ff
+			radius = 0x00ff
+		}
+	}
+
 	cmd.Payload[0] = byte(speed & 0xff)
 	cmd.Payload[1] = byte((speed >> 8) & 0xff)
 	cmd.Payload[2] = byte(radius & 0xff)

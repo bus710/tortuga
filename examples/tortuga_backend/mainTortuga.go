@@ -18,7 +18,7 @@ type Tortuga struct {
 	chanRequest chan BasicControl
 
 	timeOverCounter int
-	lut             [3][3][2]int
+	lut             [3][3][2]int // Look up table
 	request         BasicControl
 	last            BasicControl
 	speed           int16
